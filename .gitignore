@@ -1,0 +1,26 @@
+# Gradle
+.gradle/
+build/
+app/build/
+
+# Local machine config (sdk.dir, local overrides)
+local.properties
+
+# Android / IDE
+*.iml
+.idea/
+.cxx/
+.externalNativeBuild/
+captures/
+*.hprof
+keystore
+*.jks
+*.keystore
+
+# Outputs
+*.apk
+*.aab
+*.ap_
+
+# OS
+.DS_Store

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sternchen</string>
+
+    <!-- Setup / caregiver screen -->
+    <string name="setup_title">Sternchen – Setup</string>
+    <string name="setup_description">These settings tailor the experience to the child. They are based on the needs common in PIGT-related cerebellar underdevelopment (cerebellar cognitive affective syndrome, CVI, seizure sensitivity, ataxia, and slow processing).</string>
+    <string name="setup_preferred_color">Preferred color</string>
+    <string name="setup_language">Language</string>
+    <string name="setup_language_german">German</string>
+    <string name="setup_language_english">English</string>
+    <string name="setup_reduce_motion">Reduce motion / no flashing</string>
+    <string name="setup_input_method">Input method</string>
+    <string name="setup_input_touch">Touch</string>
+    <string name="setup_input_switch">Switch / Scan</string>
+    <string name="setup_debounce">Ignore accidental double-press (ataxia)</string>
+    <string name="setup_latency">Extra time to respond (slow processing)</string>
+    <string name="setup_audio_narration">Audio narration</string>
+    <string name="setup_audio_only">Audio-only mode (for visual fatigue)</string>
+    <string name="setup_voice">Voice / narration</string>
+    <string name="setup_voice_install">Install a voice (narration)</string>
+    <string name="setup_voice_test">Test the voice</string>
+    <string name="setup_voice_ok">Voice is ready</string>
+    <string name="setup_voice_missing">No voice found – please install one</string>
+    <string name="setup_start">Go to level selection</string>
+
+    <!-- Home / level selection hub -->
+    <string name="home_title">Choose a game</string>
+    <string name="home_subtitle">Sternchen – learn while playing</string>
+    <string name="home_level_cause_effect">Cause &amp; Effect</string>
+    <string name="home_level_object_naming">Naming</string>
+    <string name="home_level_matching">Matching</string>
+    <string name="home_level_colors_shapes">Colors</string>
+    <string name="home_level_counting">Counting</string>
+    <string name="home_level_find_by_name">Find it</string>
+    <string name="home_level_same_different">Same or Different</string>
+    <string name="home_level_letters">Letters</string>
+
+    <!-- Object names (shared across levels) -->
+    <string name="obj_ball">ball</string>
+    <string name="obj_star">star</string>
+    <string name="obj_square">square</string>
+    <string name="obj_heart">heart</string>
+    <string name="obj_triangle">triangle</string>
+    <string name="obj_diamond">diamond</string>
+
+    <!-- Colors -->
+    <string name="color_red">red</string>
+    <string name="color_blue">blue</string>
+    <string name="color_green">green</string>
+    <string name="color_yellow">yellow</string>
+    <string name="color_orange">orange</string>
+    <string name="color_purple">purple</string>
+
+    <!-- Object Naming level -->
+    <string name="objectnaming_prompt">Tap the picture</string>
+
+    <!-- Matching level -->
+    <string name="matching_prompt">Find the match</string>
+    <string name="matching_instruction">Find the picture below that looks like the picture above</string>
+
+    <!-- Colors/Shapes level -->
+    <string name="colors_prompt">Which color is it?</string>
+    <string name="colors_instruction">Tap the shape in this color: </string>
+
+    <!-- Counting / Numbers level -->
+    <string name="counting_prompt">How many?</string>
+    <string name="counting_instruction">Count the pictures and tap the number</string>
+
+    <!-- Find by Name (Receptive) level -->
+    <string name="findbyname_prompt">Tap the picture</string>
+    <string name="findbyname_instruction">Listen carefully and tap the right picture</string>
+
+    <!-- Same / Different level -->
+    <string name="samediff_prompt">Tap the different one</string>
+    <string name="samediff_instruction">One is different – find it</string>
+
+    <!-- Letters / Sounds level -->
+    <string name="letters_prompt">Tap the letter</string>
+    <string name="letters_instruction">Listen carefully and tap the right letter</string>
+
+    <!-- Feedback / reward -->
+    <string name="feedback_correct">Great! That is right.</string>
+    <string name="feedback_try_again">Try again</string>
+
+    <!-- Cause & Effect level -->
+    <string name="cause_object">circle</string>
+    <string name="cause_tap_for_sound">Tap for sound</string>
+    <string name="cause_tap">Tap</string>
+
+    <!-- Common -->
+    <string name="back">Back</string>
+    <string name="speech_color">color</string>
+</resources>
