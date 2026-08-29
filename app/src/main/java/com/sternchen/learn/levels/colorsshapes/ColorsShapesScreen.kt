@@ -17,15 +17,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sternchen.learn.R
+import com.sternchen.learn.access.Haptics
 import com.sternchen.learn.access.Speech
 import com.sternchen.learn.config.LearnerProfile
 import com.sternchen.learn.levels.shared.LevelShell
 import com.sternchen.learn.levels.shared.ObjectItem
 import com.sternchen.learn.levels.shared.SelectableOption
 import com.sternchen.learn.levels.shared.ShapeKind
+import com.sternchen.learn.levels.shared.respond
 import kotlin.random.Random
 
 /** A named colour entry used to build colour-recognition rounds. */
@@ -65,6 +68,8 @@ fun ColorsShapesScreen(
     val tryAgainLabel = stringResource(R.string.feedback_try_again)
     val instructionPrefix = stringResource(R.string.colors_instruction)
     val targetWord = stringResource(targetColor.nameRes)
+    val context = LocalContext.current
+    val haptics = remember { Haptics(context) }
 
     // Announce: "Tap the shape in this colour: <colour>".
     LaunchedEffect(round) {
@@ -96,12 +101,15 @@ fun ColorsShapesScreen(
                             item = option,
                             size = 180f,
                             onClick = {
-                                if (option.color == targetColor.color) {
-                                    if (profile.audioNarration) speech.say(correctLabel)
-                                    round++
-                                } else {
-                                    if (profile.audioNarration) speech.say(tryAgainLabel)
-                                }
+                                respond(
+                                    profile = profile,
+                                    speech = speech,
+                                    haptics = haptics,
+                                    isCorrect = option.color == targetColor.color,
+                                    correctLabel = correctLabel,
+                                    tryAgainLabel = tryAgainLabel,
+                                    onCorrect = { round++ },
+                                )
                             },
                         )
                     }

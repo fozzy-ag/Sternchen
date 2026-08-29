@@ -170,6 +170,11 @@ fun SetupScreen(
             checked = profile.audioOnlyMode,
             onChecked = { enabled -> onEdit(profile.copy(audioOnlyMode = enabled)) },
         )
+        switchRow(
+            label = stringResource(R.string.setup_haptic_feedback),
+            checked = profile.hapticFeedback,
+            onChecked = { enabled -> onEdit(profile.copy(hapticFeedback = enabled)) },
+        )
 
         // Voice / narration (diagnostic and install helper)
         SectionLabel(stringResource(R.string.setup_voice))

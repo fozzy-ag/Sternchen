@@ -16,14 +16,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sternchen.learn.R
+import com.sternchen.learn.access.Haptics
 import com.sternchen.learn.access.Speech
 import com.sternchen.learn.config.LearnerProfile
 import com.sternchen.learn.config.preferredColor
 import com.sternchen.learn.levels.shared.LevelShell
 import com.sternchen.learn.levels.shared.SelectableTextOption
+import com.sternchen.learn.levels.shared.respond
 import kotlin.random.Random
 
 /** Uppercase letters for the letter-identification lesson. */
@@ -52,6 +55,8 @@ fun LettersScreen(
     val correctLabel = stringResource(R.string.feedback_correct)
     val tryAgainLabel = stringResource(R.string.feedback_try_again)
     val prompt = stringResource(R.string.letters_prompt)
+    val context = LocalContext.current
+    val haptics = remember { Haptics(context) }
 
     // Announce: "Tap the letter: A".
     LaunchedEffect(round) {
@@ -84,12 +89,15 @@ fun LettersScreen(
                             size = 170f,
                             color = profile.preferredColor,
                             onClick = {
-                                if (index == targetIndex) {
-                                    if (profile.audioNarration) speech.say(correctLabel)
-                                    round++
-                                } else {
-                                    if (profile.audioNarration) speech.say(tryAgainLabel)
-                                }
+                                respond(
+                                    profile = profile,
+                                    speech = speech,
+                                    haptics = haptics,
+                                    isCorrect = index == targetIndex,
+                                    correctLabel = correctLabel,
+                                    tryAgainLabel = tryAgainLabel,
+                                    onCorrect = { round++ },
+                                )
                             },
                         )
                     }

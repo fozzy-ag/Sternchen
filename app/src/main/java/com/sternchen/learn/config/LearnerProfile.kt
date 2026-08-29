@@ -55,6 +55,10 @@ data class LearnerProfile(
     val audioNarration: Boolean = true,
     /** Pure audio-only mode (CVI/visual fatigue fallback). */
     val audioOnlyMode: Boolean = false,
+
+    // ---- Feedback ----
+    /** Gentle vibration on WRONG responses (correct = visual/audio reward only). */
+    val hapticFeedback: Boolean = true,
 )
 
 enum class InputMode {

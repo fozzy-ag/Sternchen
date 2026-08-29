@@ -19,9 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sternchen.learn.R
+import com.sternchen.learn.access.Haptics
 import com.sternchen.learn.access.Speech
 import com.sternchen.learn.config.LearnerProfile
 import com.sternchen.learn.config.preferredColor
@@ -30,6 +32,7 @@ import com.sternchen.learn.levels.shared.ObjectItem
 import com.sternchen.learn.levels.shared.SelectableTextOption
 import com.sternchen.learn.levels.shared.ShapeKind
 import com.sternchen.learn.levels.shared.ShapeView
+import com.sternchen.learn.levels.shared.respond
 import kotlin.random.Random
 
 /**
@@ -58,6 +61,8 @@ fun CountingScreen(
     val correctLabel = stringResource(R.string.feedback_correct)
     val tryAgainLabel = stringResource(R.string.feedback_try_again)
     val prompt = stringResource(R.string.counting_prompt)
+    val context = LocalContext.current
+    val haptics = remember { Haptics(context) }
 
     // Narrate the count aloud, e.g. "1, 2, 3. How many?"
     LaunchedEffect(round) {
@@ -111,12 +116,15 @@ fun CountingScreen(
                             size = 160f,
                             color = profile.preferredColor,
                             onClick = {
-                                if (n == count) {
-                                    if (profile.audioNarration) speech.say(correctLabel)
-                                    round++
-                                } else {
-                                    if (profile.audioNarration) speech.say(tryAgainLabel)
-                                }
+                                respond(
+                                    profile = profile,
+                                    speech = speech,
+                                    haptics = haptics,
+                                    isCorrect = n == count,
+                                    correctLabel = correctLabel,
+                                    tryAgainLabel = tryAgainLabel,
+                                    onCorrect = { round++ },
+                                )
                             },
                         )
                     }

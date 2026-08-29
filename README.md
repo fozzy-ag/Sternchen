@@ -11,7 +11,7 @@
 
 | Field       | Value   |
 |-------------|---------|
-| Version     | `0.1.0` |
+| Version     | `0.2.0` |
 | VersionCode | `1`     |
 | Scheme      | Semantic Versioning (MAJOR.MINOR.PATCH) |
 
@@ -20,7 +20,17 @@ Version fields live in `app/build.gradle.kts` (`defaultConfig.versionCode` /
 
 ### Changelog
 
-#### 0.1.1 (2026-08-28) — licensing & documentation
+#### 0.2.0 (2026-08-29) — CVI letter bubbling + wrong-only haptics
+- **CVI letter bubbling**: every letter/number tile (`SelectableTextOption`) now has a
+  thick high-contrast white outline that separates the preferred-color panel from the
+  plain dark background, reducing visual-crowding/contour interference.
+- **Wrong-only haptic feedback**: a short, gentle vibration on wrong responses only;
+  correct responses keep their visual + audio reward (no haptic reinforcement, per
+  research). New caregiver toggle "Vibrate on wrong answer" in Setup
+  (`hapticFeedback`, default on), persisted in `LearnerProfile`.
+- Added `access/Haptics.kt` (crash-guarded, like `Speech`), `VIBRATE` permission, and a
+  shared `respond()` helper now used by all 6 choice-based levels.
+
 - Added `MIT License` (`LICENSE` file).
 - Replaced the proprietary notice with MIT; added comprehensive disclaimers to the
   README (private project, not medical advice, no liability, generative-AI-assisted
@@ -309,7 +319,8 @@ WCAG 2.2/2.3 (no flashing, ≥3 flashes threshold), haptic + audio + visual feed
 - **No progress tracking** (no Room yet; `ProfileStore` is the designated replacement point).
 - **`scanDwellMillis`, `stimulusRepetitions`, `objectScale`, `backgroundArgb`** are
   persisted but not yet exposed in the setup UI / not fully wired into levels.
-- **No haptic feedback** (audio + visual only).
+- **Haptics are wrong-only** (by design: correct responses use visual + audio reward only;
+  see [Roadmap](#roadmap--future-additions) and the feedback section above).
 - **Fixed letter/number sets**: letters A–F, counts 1–3 (deliberately small).
 - **Single profile**: one learner per device.
 - **No automated tests / CI** yet.
@@ -320,10 +331,9 @@ WCAG 2.2/2.3 (no flashing, ≥3 flashes threshold), haptic + audio + visual feed
 Prioritized from the research (see sections 2–5 above):
 
 ### Near-term (small, high-impact)
-1. **CVI "letter/word bubbling"** for the Letters level — thick preferred-color outline
-   around letters/words (Roman word bubbling, Bubbly).
-2. **Haptic feedback** — vibration on correct/wrong with a caregiver toggle
-   (RESNA 2025; TUNI study).
+1. ~~**CVI "letter/word bubbling"**~~ — **Done in 0.2.0** (thick contrast outline on letter/number
+   tiles). Future: extend bubbling to word-level targets.
+2. ~~**Haptic feedback**~~ — **Done in 0.2.0** (wrong-only, caregiver toggle).
 3. **Errorless learning / graded failure** — after N wrong picks, highlight or
    auto-accept the correct option (Seven Stages of Switch Development, stage 5).
 4. **Wire `scanDwellMillis`** into an in-app scan pacing + setup slider

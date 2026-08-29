@@ -17,6 +17,7 @@
     <string name="setup_latency">Extra time to respond (slow processing)</string>
     <string name="setup_audio_narration">Audio narration</string>
     <string name="setup_audio_only">Audio-only mode (for visual fatigue)</string>
+    <string name="setup_haptic_feedback">Vibrate on wrong answer</string>
     <string name="setup_voice">Voice / narration</string>
     <string name="setup_voice_install">Install a voice (narration)</string>
     <string name="setup_voice_test">Test the voice</string>

@@ -17,6 +17,7 @@
     <string name="setup_latency">Zusätzliche Zeit zum Antworten (langsames Verarbeiten)</string>
     <string name="setup_audio_narration">Sprachausgabe</string>
     <string name="setup_audio_only">Nur-Audio-Modus (bei visueller Ermüdung)</string>
+    <string name="setup_haptic_feedback">Bei falscher Antwort vibrieren</string>
     <string name="setup_voice">Stimme / Vorlesen</string>
     <string name="setup_voice_install">Stimme installieren (Vorlesen)</string>
     <string name="setup_voice_test">Stimme testen</string>

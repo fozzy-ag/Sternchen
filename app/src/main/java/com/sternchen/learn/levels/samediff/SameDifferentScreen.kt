@@ -17,15 +17,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sternchen.learn.R
+import com.sternchen.learn.access.Haptics
 import com.sternchen.learn.access.Speech
 import com.sternchen.learn.config.LearnerProfile
 import com.sternchen.learn.levels.shared.LevelShell
 import com.sternchen.learn.levels.shared.ObjectItem
 import com.sternchen.learn.levels.shared.SelectableOption
 import com.sternchen.learn.levels.shared.ShapeKind
+import com.sternchen.learn.levels.shared.respond
 import kotlin.random.Random
 
 /** Distinct colours used to make the "different" object stand out. */
@@ -60,6 +63,8 @@ fun SameDifferentScreen(
     val correctLabel = stringResource(R.string.feedback_correct)
     val tryAgainLabel = stringResource(R.string.feedback_try_again)
     val prompt = stringResource(R.string.samediff_prompt)
+    val context = LocalContext.current
+    val haptics = remember { Haptics(context) }
 
     // Announce the task.
     LaunchedEffect(round) {
@@ -91,12 +96,15 @@ fun SameDifferentScreen(
                             item = item.item,
                             size = 170f,
                             onClick = {
-                                if (index == differentIndex) {
-                                    if (profile.audioNarration) speech.say(correctLabel)
-                                    round++
-                                } else {
-                                    if (profile.audioNarration) speech.say(tryAgainLabel)
-                                }
+                                respond(
+                                    profile = profile,
+                                    speech = speech,
+                                    haptics = haptics,
+                                    isCorrect = index == differentIndex,
+                                    correctLabel = correctLabel,
+                                    tryAgainLabel = tryAgainLabel,
+                                    onCorrect = { round++ },
+                                )
                             },
                         )
                     }

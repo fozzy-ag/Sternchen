@@ -18,9 +18,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sternchen.learn.R
+import com.sternchen.learn.access.Haptics
 import com.sternchen.learn.access.Speech
 import com.sternchen.learn.config.LearnerProfile
 import com.sternchen.learn.levels.shared.LevelShell
@@ -28,6 +30,7 @@ import com.sternchen.learn.levels.shared.ObjectItem
 import com.sternchen.learn.levels.shared.SelectableOption
 import com.sternchen.learn.levels.shared.ShapeKind
 import com.sternchen.learn.levels.shared.optionSizeFor
+import com.sternchen.learn.levels.shared.respond
 import kotlin.random.Random
 
 /** Distinct, high-saturation palette for option colour (CVI-friendly contrast). */
@@ -66,6 +69,8 @@ fun MatchingScreen(
     val tryAgainLabel = stringResource(R.string.feedback_try_again)
     val prompt = stringResource(R.string.matching_prompt)
     val instruction = stringResource(R.string.matching_instruction)
+    val context = LocalContext.current
+    val haptics = remember { Haptics(context) }
 
     // Speak the target's name as the prompt for this round (audio narration).
     val targetWord = stringResource(target.shape.nameRes)
@@ -113,12 +118,15 @@ fun MatchingScreen(
                             item = option,
                             size = optSize,
                             onClick = {
-                                if (option == target) {
-                                    if (profile.audioNarration) speech.say(correctLabel)
-                                    round++
-                                } else {
-                                    if (profile.audioNarration) speech.say(tryAgainLabel)
-                                }
+                                respond(
+                                    profile = profile,
+                                    speech = speech,
+                                    haptics = haptics,
+                                    isCorrect = option == target,
+                                    correctLabel = correctLabel,
+                                    tryAgainLabel = tryAgainLabel,
+                                    onCorrect = { round++ },
+                                )
                             },
                         )
                     }

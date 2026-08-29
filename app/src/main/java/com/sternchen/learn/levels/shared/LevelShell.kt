@@ -2,6 +2,7 @@ package com.sternchen.learn.levels.shared
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.sternchen.learn.R
 import com.sternchen.learn.access.Debouncer
+import com.sternchen.learn.access.Haptics
 import com.sternchen.learn.access.Speech
 import com.sternchen.learn.config.InputMode
 import com.sternchen.learn.config.LearnerProfile
@@ -103,6 +105,34 @@ fun debouncedAction(
 }
 
 /**
+ * Unified correct/wrong feedback for choice-based levels.
+ *
+ * Correct responses receive the audio reward (visual + audio only; no haptic
+ * reinforcement, per research). Wrong responses hear the "try again" cue and,
+ * if the caregiver has haptic feedback enabled, get a gentle vibration to help
+ * catch an error that might be missed on the visual/audio channel.
+ *
+ * [onCorrect] is invoked when the answer is correct so the level can advance.
+ */
+fun respond(
+    profile: LearnerProfile,
+    speech: Speech,
+    haptics: Haptics,
+    isCorrect: Boolean,
+    correctLabel: String,
+    tryAgainLabel: String,
+    onCorrect: () -> Unit,
+) {
+    if (isCorrect) {
+        if (profile.audioNarration) speech.say(correctLabel)
+        onCorrect()
+    } else {
+        if (profile.audioNarration) speech.say(tryAgainLabel)
+        if (profile.hapticFeedback) haptics.vibrateOnWrong()
+    }
+}
+
+/**
  * A large, singly-focused tappable option that renders a [ShapeView] of the
  * given size with platform-accessible semantics (content description spoken /
  * traversed by switch scanning).
@@ -138,6 +168,11 @@ fun optionSizeFor(count: Int): Float = when {
  * A large, tappable option that renders a big symbol (e.g. a numeral or letter)
  * as text on a coloured rounded panel, with accessibility semantics. Used for
  * number and letter identification.
+ *
+ * The panel carries a thick high-contrast "bubble" outline (CVI). The strong
+ * preferred-color fill plus a contrasting border separates the target from the
+ * plain dark background, which reduces visual-crowding/contour interference —
+ * a common difficulty for children with cortical visual impairment.
  */
 @Composable
 fun SelectableTextOption(
@@ -150,6 +185,7 @@ fun SelectableTextOption(
     Box(
         modifier = modifier
             .size(size.dp)
+            .border(6.dp, Color.White, RoundedCornerShape(24.dp))
             .background(color, RoundedCornerShape(24.dp))
             .semantics {
                 contentDescription = text
