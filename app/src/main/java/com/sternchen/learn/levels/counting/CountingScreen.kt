@@ -87,7 +87,7 @@ fun CountingScreen(
             verticalArrangement = Arrangement.SpaceEvenly,
         ) {
             // The counted set of large objects.
-            val objSize = when (count) { 1 -> 170f; 2 -> 150f; else -> 120f }
+            val objSize = (when (count) { 1 -> 170f; 2 -> 150f; else -> 120f }) * profile.objectScale
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
@@ -128,7 +128,7 @@ fun CountingScreen(
                         }
                         SelectableTextOption(
                             text = n.toString(),
-                            size = 160f,
+                            size = 160f * profile.objectScale,
                             color = profile.preferredColor,
                             onClick = { handleTap() },
                         )

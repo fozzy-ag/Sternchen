@@ -161,11 +161,11 @@ fun SelectableOption(
 }
 
 /** Advice about how many option cells to show; keeps targets large for CVI. */
-fun optionSizeFor(count: Int): Float = when {
+fun optionSizeFor(count: Int, scale: Float): Float = (when {
     count <= 2 -> 220f
     count <= 3 -> 170f
     else -> 130f
-}
+}) * scale
 
 /**
  * A large, tappable option that renders a big symbol (e.g. a numeral or letter)

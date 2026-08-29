@@ -6,6 +6,12 @@
     <string name="setup_title">Sternchen – Einrichtung</string>
     <string name="setup_description">Diese Einstellungen passen die App an das Kind an. Sie basieren auf den häufigen Bedürfnissen bei PIGT-bedingter Kleinhirn-Unterentwicklung (zerebelläres kognitiv-affektives Syndrom, CVI, Krampfanfälle, Ataxie und langsames Verarbeiten).</string>
     <string name="setup_preferred_color">Lieblingsfarbe</string>
+    <string name="setup_name">Name des Lernenden</string>
+    <string name="setup_name_hint">Name eingeben</string>
+    <string name="setup_background">Hintergrundfarbe</string>
+    <string name="setup_scan_dwell">Geschwindigkeit der Schalter-Auswahl</string>
+    <string name="setup_object_scale">Objektgröße</string>
+    <string name="setup_stimulus_repetitions">Wiederholungen der Aufgabe</string>
     <string name="setup_language">Sprache</string>
     <string name="setup_language_german">Deutsch</string>
     <string name="setup_language_english">Englisch</string>

@@ -110,7 +110,7 @@ fun SameDifferentScreen(
                         }
                         SelectableOption(
                             item = item.item,
-                            size = 170f,
+                            size = 170f * profile.objectScale,
                             onClick = { handleTap() },
                         )
                     }

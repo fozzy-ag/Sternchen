@@ -11,7 +11,7 @@
 
 | Field       | Value   |
 |-------------|---------|
-| Version     | `0.2.1` |
+| Version     | `0.3.0` |
 | VersionCode | `1`     |
 | Scheme      | Semantic Versioning (MAJOR.MINOR.PATCH) |
 
@@ -19,6 +19,17 @@ Version fields live in `app/build.gradle.kts` (`defaultConfig.versionCode` /
 `versionName`). Every user-facing change gets a changelog entry below.
 
 ### Changelog
+
+#### 0.3.0 (2026-08-29) — full setup for the learner profile
+- **Learner name**: caregivers can enter the child's name (used as a friendly label).
+- **Background color**: pick from four CVI-safe backgrounds (near-black default, dark
+  blue, dark grey, off-white); applied to every screen via `backgroundArgb`.
+- **Object size**: a global scale slider (0.7×–1.4×) now sizes objects/options in every
+  level (Cause & Effect, Letters, Counting, Matching, Find-By-Name, Same/Different,
+  Colors & Shapes), not just Cause & Effect.
+- **Repeats of the task** (`stimulusRepetitions`): slider exposed and persisted.
+- **Switch scanning speed** (`scanDwellMillis`): slider exposed and persisted for future
+  in-app scan pacing; platform switch access still drives scanning today.
 
 #### 0.2.1 (2026-08-29) — TTS queue fix + shorter/clearer feedback
 - **Fixed stale/queued speech**: `Speech` now flushes the engine before each new
@@ -173,6 +184,11 @@ profile changes persist and apply immediately (theme, language, input, audio).
 | Setting | Values / range | Purpose |
 |---|---|---|
 | Preferred color | 6 saturated colors (red default) | CVI salient color for all primary targets. |
+| Learner's name | free text | Friendly label for the child. |
+| Background color | 4 CVI-safe colors (near-black default) | Plain, low-complexity background on every screen. |
+| Object size | 0.7×–1.4× slider | Global scale for objects/options in all levels. |
+| Switch scanning speed | 0.2–5 s slider | Dwell time for switch scanning (persisted; platform scanning drives today). |
+| Repeats of the task | 1–5 slider | Promised repetition count of each task prompt (persisted). |
 | Language | Deutsch (default) / Englisch | In-app UI + TTS language, independent of device locale. |
 | Reduce motion | on (default) / off | Turns the feedback pulse into an instant still change; seizure safety. |
 | Input method | Touch (default) / Switch/Scan | Debounce is auto-disabled in switch-scan mode. |
@@ -183,8 +199,7 @@ profile changes persist and apply immediately (theme, language, input, audio).
 | Voice / narration (diagnostic) | status + **Test** + **Install** buttons | Shows whether a TTS voice is ready; opens system TTS settings to install a German voice. |
 
 Persisted profile fields that are not yet surfaced in the UI (available for future
-settings): `plainBackground`, `backgroundArgb`, `objectScale`, `simpleLayout`,
-`scanDwellMillis`, `stimulusRepetitions`, `explicitInstruction`, `name`.
+settings): `plainBackground`, `simpleLayout`, `explicitInstruction`.
 
 ## Levels
 
@@ -327,10 +342,10 @@ WCAG 2.2/2.3 (no flashing, ≥3 flashes threshold), haptic + audio + visual feed
 
 - **Fixed difficulty**: every array level always shows 3 options; no entry-level or
   in-game adaptivity yet.
-- **No errorless learning**: wrong answers loop "try again" without fallback.
 - **No progress tracking** (no Room yet; `ProfileStore` is the designated replacement point).
-- **`scanDwellMillis`, `stimulusRepetitions`, `objectScale`, `backgroundArgb`** are
-  persisted but not yet exposed in the setup UI / not fully wired into levels.
+- **`scanDwellMillis` and `stimulusRepetitions` are settable but not yet driving behavior**:
+  both sliders persist the values; scan pacing still comes from platform switch access, and
+  rounds don't yet repeat the prompt N times.
 - **Haptics are wrong-only** (by design: correct responses use visual + audio reward only;
   see [Roadmap](#roadmap--future-additions) and the feedback section above).
 - **Fixed letter/number sets**: letters A–F, counts 1–3 (deliberately small).
@@ -346,11 +361,12 @@ Prioritized from the research (see sections 2–5 above):
 1. ~~**CVI "letter/word bubbling"**~~ — **Done in 0.2.0** (thick contrast outline on letter/number
    tiles). Future: extend bubbling to word-level targets.
 2. ~~**Haptic feedback**~~ — **Done in 0.2.0** (wrong-only, caregiver toggle).
-3. **Errorless learning / graded failure** — after N wrong picks, highlight or
-   auto-accept the correct option (Seven Stages of Switch Development, stage 5).
-4. **Wire `scanDwellMillis`** into an in-app scan pacing + setup slider
-   (Whiterose: adjustable scan speed 0.3–5 s, acceptance delay, acknowledgement blip
-   on each registered press).
+3. ~~**Wire `scanDwellMillis` into an in-app scan pacing + setup slider**~~ — **Done in 0.3.0**
+   (dwell-time slider exposed & persisted). Future: an in-app scan loop (0.3–5 s, acceptance
+   delay, acknowledgement blip on each registered press); platform switch access drives
+   scanning today.
+4. ~~**Surface remaining profile fields** in setup: background choice, object scale,
+   stimulus repetitions, learner name~~ — **Done in 0.3.0**.
 5. **Caregiver option to hide levels** on the home hub (reduce choice / predictable
    routines; CVI array complexity).
 
@@ -361,20 +377,18 @@ Prioritized from the research (see sections 2–5 above):
    (VisionLearn IEP tracking; swap `ProfileStore` for Room).
 8. **Explicit visual-latency setting** — delay before stimulus removal/advance as a
    distinct CVI characteristic (Roman-Lantzy).
-9. **Surface remaining profile fields** in setup: background choice, object scale,
-   stimulus repetitions, learner name.
 
 ### Further levels (CCAS target domains)
-10. **Figure-ground search** — target embedded in low-level clutter, increasing clutter
-    (visuospatial domain; meta-analysis effect).
-11. **Sequencing** — put 2–3 steps in order (executive domain; Vizzbu has sequencing).
-12. **Working-memory pairs** — match-after-brief-delay (executive domain).
-13. Expand letters (full alphabet, lower/uppercase) and counting (4–10).
-14. **Movement-preferred targets** (CVI movement characteristic) with optional gentle
+9. **Figure-ground search** — target embedded in low-level clutter, increasing clutter
+   (visuospatial domain; meta-analysis effect).
+10. **Sequencing** — put 2–3 steps in order (executive domain; Vizzbu has sequencing).
+11. **Working-memory pairs** — match-after-brief-delay (executive domain).
+12. Expand letters (full alphabet, lower/uppercase) and counting (4–10).
+13. **Movement-preferred targets** (CVI movement characteristic) with optional gentle
     motion, gated by the reduced-motion safety setting.
-15. **Multi-profile support + caregiver analytics export** (Room; IEP documentation).
-16. **Light/field preference** options (CVI light preference, visual-field preference).
-17. **Automated tests + CI** (Compose UI tests, Lint) before any public release.
+14. **Multi-profile support + caregiver analytics export** (Room; IEP documentation).
+15. **Light/field preference** options (CVI light preference, visual-field preference).
+16. **Automated tests + CI** (Compose UI tests, Lint) before any public release.
 
 ## License
 

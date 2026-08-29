@@ -102,7 +102,7 @@ fun LettersScreen(
                         }
                         SelectableTextOption(
                             text = letter,
-                            size = 170f,
+                            size = 170f * profile.objectScale,
                             color = profile.preferredColor,
                             onClick = { handleTap() },
                         )

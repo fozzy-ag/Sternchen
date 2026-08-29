@@ -115,7 +115,7 @@ fun ColorsShapesScreen(
                         }
                         SelectableOption(
                             item = option,
-                            size = 180f,
+                            size = 180f * profile.objectScale,
                             onClick = { handleTap() },
                         )
                     }

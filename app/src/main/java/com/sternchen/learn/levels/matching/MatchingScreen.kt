@@ -102,12 +102,12 @@ fun MatchingScreen(
                     .weight(1f),
                 contentAlignment = Alignment.Center,
             ) {
-                SelectableOption(item = target, size = 200f, onClick = {})
+                SelectableOption(item = target, size = 200f * profile.objectScale, onClick = {})
             }
 
             Spacer(Modifier.height(24.dp))
 
-            val optSize = optionSizeFor(options.size)
+            val optSize = optionSizeFor(options.size, profile.objectScale)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

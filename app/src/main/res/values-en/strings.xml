@@ -6,6 +6,12 @@
     <string name="setup_title">Sternchen – Setup</string>
     <string name="setup_description">These settings tailor the experience to the child. They are based on the needs common in PIGT-related cerebellar underdevelopment (cerebellar cognitive affective syndrome, CVI, seizure sensitivity, ataxia, and slow processing).</string>
     <string name="setup_preferred_color">Preferred color</string>
+    <string name="setup_name">Learner\'s name</string>
+    <string name="setup_name_hint">Enter a name</string>
+    <string name="setup_background">Background color</string>
+    <string name="setup_scan_dwell">Switch scanning speed</string>
+    <string name="setup_object_scale">Object size</string>
+    <string name="setup_stimulus_repetitions">Repeats of the task</string>
     <string name="setup_language">Language</string>
     <string name="setup_language_german">German</string>
     <string name="setup_language_english">English</string>

@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -34,6 +35,7 @@ import com.sternchen.learn.config.AppLanguage
 import com.sternchen.learn.config.InputMode
 import com.sternchen.learn.config.LearnerProfile
 import com.sternchen.learn.config.backgroundColor
+import kotlin.math.roundToInt
 
 /**
  * Caregiver/therapist-facing setup screen.
@@ -71,6 +73,17 @@ fun SetupScreen(
             color = Color.White.copy(alpha = 0.85f),
         )
 
+        // Learner name
+        SectionLabel(stringResource(R.string.setup_name))
+        OutlinedTextField(
+            value = profile.name,
+            onValueChange = { onEdit(profile.copy(name = it)) },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text(stringResource(R.string.setup_name_hint)) },
+            singleLine = true,
+            textStyle = MaterialTheme.typography.bodyLarge,
+        )
+
         // Preferred colour
         SectionLabel(stringResource(R.string.setup_preferred_color))
         val speechColor = stringResource(R.string.speech_color)
@@ -95,6 +108,31 @@ fun SetupScreen(
                         .clickable {
                             onEdit(profile.copy(preferredColorArgb = argb.toLong()))
                             speech.say(speechColor)
+                        },
+                )
+            }
+        }
+
+        // Background colour
+        SectionLabel(stringResource(R.string.setup_background))
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            listOf(
+                0xFF000000.toInt(), // near-black
+                0xFF0D1B2A.toInt(), // dark blue
+                0xFF1B1B1B.toInt(), // dark grey
+                0xFFF2F2F2.toInt(), // off-white
+            ).forEach { argb ->
+                val color = Color(argb)
+                Box(
+                    modifier = Modifier
+                        .padding(2.dp)
+                        .size(if (profile.backgroundArgb == argb.toLong()) 44.dp else 36.dp)
+                        .background(color)
+                        .clickable {
+                            onEdit(profile.copy(backgroundArgb = argb.toLong()))
                         },
                 )
             }
@@ -157,6 +195,33 @@ fun SetupScreen(
             valueRange = 0f..8f,
             display = "${profile.latencyMillis / 1000f}s",
             onValue = { v -> onEdit(profile.copy(latencyMillis = (v * 1000).toLong())) },
+        )
+
+        // Scan dwell slider
+        sliderRow(
+            label = stringResource(R.string.setup_scan_dwell),
+            value = profile.scanDwellMillis / 1000f,
+            valueRange = 0.2f..5f,
+            display = "${profile.scanDwellMillis / 1000f}s",
+            onValue = { v -> onEdit(profile.copy(scanDwellMillis = (v * 1000).roundToInt().toLong())) },
+        )
+
+        // Object scale slider
+        sliderRow(
+            label = stringResource(R.string.setup_object_scale),
+            value = profile.objectScale,
+            valueRange = 0.7f..1.4f,
+            display = "${profile.objectScale}x",
+            onValue = { v -> onEdit(profile.copy(objectScale = v)) },
+        )
+
+        // Stimulus repetitions slider
+        sliderRow(
+            label = stringResource(R.string.setup_stimulus_repetitions),
+            value = profile.stimulusRepetitions.toFloat(),
+            valueRange = 1f..5f,
+            display = "${profile.stimulusRepetitions}",
+            onValue = { v -> onEdit(profile.copy(stimulusRepetitions = v.roundToInt())) },
         )
 
         // Audio narration
