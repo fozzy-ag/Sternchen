@@ -20,6 +20,12 @@ Version fields live in `app/build.gradle.kts` (`defaultConfig.versionCode` /
 
 ### Changelog
 
+#### 0.1.1 (2026-08-28) — licensing & documentation
+- Added `MIT License` (`LICENSE` file).
+- Replaced the proprietary notice with MIT; added comprehensive disclaimers to the
+  README (private project, not medical advice, no liability, generative-AI-assisted
+  development). No application code changed in this release.
+
 #### 0.1.0 (2026-08-28) — first build
 - Caregiver setup screen: preferred color, language (German/English), reduce motion,
   input mode (touch / switch scan), debounce, latency, audio narration, audio-only mode,
@@ -350,4 +356,55 @@ Prioritized from the research (see sections 2–5 above):
 
 ## License
 
-Proprietary — all rights reserved. (No LICENSE file committed.)
+MIT License. See the [LICENSE](LICENSE) file for the full text.
+
+---
+
+## Disclaimer
+
+**This is a private project.** It was created privately, for a specific family
+and a specific child, and does not represent a general medical, therapeutic,
+or educational product, nor an official recommendation by any clinician,
+institution, or organization.
+
+**Not medical advice.** This application is a learning/engagement tool only. It
+is not a medical device, does not diagnose, treat, or manage any condition, and
+should never replace advice, assessment, or intervention from qualified
+healthcare, therapy, vision, or education professionals.
+
+**Not a substitute for professional guidance.** The design choices are informed
+by publicly available research literature (see [Research background](#research-background)),
+but they are made by a lay developer for one specific learner. Every child is
+different, and what is appropriate here may be inappropriate, ineffective, or
+harmful elsewhere. Please consult the child's own medical, vision, occupational,
+speech, and education teams before using or adapting this.
+
+**Seizure & sensory safety are the caregiver/clinical team's responsibility.**
+While every effort is made to avoid flashing and rapid motion, the suitability
+of this app for a child who may be photosensitive or seizure-prone must be
+evaluated by that child's own medical/clinical team, on a case-by-case basis,
+before use.
+
+**No liability.** This software is provided on an "AS IS" and "AS AVAILABLE"
+basis, without warranty of any kind, express or implied, including but not
+limited to the warranties of merchantability, fitness for a particular purpose,
+and noninfringement. In no event shall the author or copyright holder be liable
+for any claim, damages, or other liability (whether in an action of contract,
+tort, or otherwise) arising from, out of, or in connection with the software or
+its use, including any injury, harm, loss of data, or other consequences
+relating to its use or misuse, by the original user or by any third party.
+
+**Generative AI was used.** This project was substantially created with the
+assistance of generative AI (an AI coding assistant) under the direction and
+review of the human author. AI-generated and AI-assisted code and text may
+contain errors, and output should always be reviewed by qualified humans.
+
+**No warranty of correctness or completeness.** The source code, documentation,
+and research summaries are provided without guarantee of accuracy,
+completeness, or fitness for any purpose. The research links are provided for
+convenience; the author does not endorse or verify the content of any external
+site, and external content may change, disappear, or be inaccurate.
+
+By using, copying, modifying, or distributing this project you acknowledge that
+you do so at your own risk and agree to all of the above terms.
+
