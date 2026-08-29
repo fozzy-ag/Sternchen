@@ -13,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,8 +29,10 @@ import com.sternchen.learn.levels.shared.LevelShell
 import com.sternchen.learn.levels.shared.ObjectItem
 import com.sternchen.learn.levels.shared.SelectableOption
 import com.sternchen.learn.levels.shared.ShapeKind
+import com.sternchen.learn.levels.shared.debouncedAction
 import com.sternchen.learn.levels.shared.respond
 import kotlin.random.Random
+import kotlinx.coroutines.launch
 
 /** A named colour entry used to build colour-recognition rounds. */
 private data class ColorEntry(val color: Color, @StringRes val nameRes: Int)
@@ -65,11 +68,11 @@ fun ColorsShapesScreen(
     val options by remember(round) { mutableStateOf(makeColorOptions(shapes, targetColor, round)) }
 
     val correctLabel = stringResource(R.string.feedback_correct)
-    val tryAgainLabel = stringResource(R.string.feedback_try_again)
     val instructionPrefix = stringResource(R.string.colors_instruction)
     val targetWord = stringResource(targetColor.nameRes)
     val context = LocalContext.current
     val haptics = remember { Haptics(context) }
+    val scope = rememberCoroutineScope()
 
     // Announce: "Tap the shape in this colour: <colour>".
     LaunchedEffect(round) {
@@ -97,20 +100,23 @@ fun ColorsShapesScreen(
             ) {
                 options.forEach { option ->
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        SelectableOption(
-                            item = option,
-                            size = 180f,
-                            onClick = {
+                        val handleTap = debouncedAction(profile) {
+                            scope.launch {
                                 respond(
                                     profile = profile,
                                     speech = speech,
                                     haptics = haptics,
                                     isCorrect = option.color == targetColor.color,
                                     correctLabel = correctLabel,
-                                    tryAgainLabel = tryAgainLabel,
+                                    repeatLabel = targetWord,
                                     onCorrect = { round++ },
                                 )
-                            },
+                            }
+                        }
+                        SelectableOption(
+                            item = option,
+                            size = 180f,
+                            onClick = { handleTap() },
                         )
                     }
                 }

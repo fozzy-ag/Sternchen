@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,8 +33,10 @@ import com.sternchen.learn.levels.shared.ObjectItem
 import com.sternchen.learn.levels.shared.SelectableTextOption
 import com.sternchen.learn.levels.shared.ShapeKind
 import com.sternchen.learn.levels.shared.ShapeView
+import com.sternchen.learn.levels.shared.debouncedAction
 import com.sternchen.learn.levels.shared.respond
 import kotlin.random.Random
+import kotlinx.coroutines.launch
 
 /**
  * Counting / Numbers level.
@@ -59,16 +62,15 @@ fun CountingScreen(
     }
 
     val correctLabel = stringResource(R.string.feedback_correct)
-    val tryAgainLabel = stringResource(R.string.feedback_try_again)
-    val prompt = stringResource(R.string.counting_prompt)
     val context = LocalContext.current
     val haptics = remember { Haptics(context) }
+    val scope = rememberCoroutineScope()
 
-    // Narrate the count aloud, e.g. "1, 2, 3. How many?"
+    // Narrate the count aloud, e.g. "1, 2, 3".
     LaunchedEffect(round) {
         if (profile.audioNarration) {
             val spokenCount = (1..count).joinToString(", ")
-            speech.say("$spokenCount. $prompt")
+            speech.say(spokenCount)
         }
     }
 
@@ -111,21 +113,24 @@ fun CountingScreen(
             ) {
                 (1..3).forEach { n ->
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        SelectableTextOption(
-                            text = n.toString(),
-                            size = 160f,
-                            color = profile.preferredColor,
-                            onClick = {
+                        val handleTap = debouncedAction(profile) {
+                            scope.launch {
                                 respond(
                                     profile = profile,
                                     speech = speech,
                                     haptics = haptics,
                                     isCorrect = n == count,
                                     correctLabel = correctLabel,
-                                    tryAgainLabel = tryAgainLabel,
+                                    repeatLabel = count.toString(),
                                     onCorrect = { round++ },
                                 )
-                            },
+                            }
+                        }
+                        SelectableTextOption(
+                            text = n.toString(),
+                            size = 160f,
+                            color = profile.preferredColor,
+                            onClick = { handleTap() },
                         )
                     }
                 }

@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,8 +27,10 @@ import com.sternchen.learn.config.LearnerProfile
 import com.sternchen.learn.config.preferredColor
 import com.sternchen.learn.levels.shared.LevelShell
 import com.sternchen.learn.levels.shared.SelectableTextOption
+import com.sternchen.learn.levels.shared.debouncedAction
 import com.sternchen.learn.levels.shared.respond
 import kotlin.random.Random
+import kotlinx.coroutines.launch
 
 /** Uppercase letters for the letter-identification lesson. */
 private val LETTERS = listOf("A", "B", "C", "D", "E", "F")
@@ -53,10 +56,10 @@ fun LettersScreen(
     val targetLetter = options[targetIndex]
 
     val correctLabel = stringResource(R.string.feedback_correct)
-    val tryAgainLabel = stringResource(R.string.feedback_try_again)
     val prompt = stringResource(R.string.letters_prompt)
     val context = LocalContext.current
     val haptics = remember { Haptics(context) }
+    val scope = rememberCoroutineScope()
 
     // Announce: "Tap the letter: A".
     LaunchedEffect(round) {
@@ -84,21 +87,24 @@ fun LettersScreen(
             ) {
                 options.forEachIndexed { index, letter ->
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        SelectableTextOption(
-                            text = letter,
-                            size = 170f,
-                            color = profile.preferredColor,
-                            onClick = {
+                        val handleTap = debouncedAction(profile) {
+                            scope.launch {
                                 respond(
                                     profile = profile,
                                     speech = speech,
                                     haptics = haptics,
                                     isCorrect = index == targetIndex,
                                     correctLabel = correctLabel,
-                                    tryAgainLabel = tryAgainLabel,
+                                    repeatLabel = targetLetter,
                                     onCorrect = { round++ },
                                 )
-                            },
+                            }
+                        }
+                        SelectableTextOption(
+                            text = letter,
+                            size = 170f,
+                            color = profile.preferredColor,
+                            onClick = { handleTap() },
                         )
                     }
                 }

@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,8 +29,10 @@ import com.sternchen.learn.levels.shared.LevelShell
 import com.sternchen.learn.levels.shared.ObjectItem
 import com.sternchen.learn.levels.shared.SelectableOption
 import com.sternchen.learn.levels.shared.ShapeKind
+import com.sternchen.learn.levels.shared.debouncedAction
 import com.sternchen.learn.levels.shared.respond
 import kotlin.random.Random
+import kotlinx.coroutines.launch
 
 /** Distinct colours used to make the "different" object stand out. */
 private val PALETTE = listOf(
@@ -61,10 +64,10 @@ fun SameDifferentScreen(
     val differentIndex by remember(round) { mutableStateOf(triple.indexOfFirst { it.isDifferent }) }
 
     val correctLabel = stringResource(R.string.feedback_correct)
-    val tryAgainLabel = stringResource(R.string.feedback_try_again)
     val prompt = stringResource(R.string.samediff_prompt)
     val context = LocalContext.current
     val haptics = remember { Haptics(context) }
+    val scope = rememberCoroutineScope()
 
     // Announce the task.
     LaunchedEffect(round) {
@@ -92,20 +95,23 @@ fun SameDifferentScreen(
             ) {
                 triple.forEachIndexed { index, item ->
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        SelectableOption(
-                            item = item.item,
-                            size = 170f,
-                            onClick = {
+                        val handleTap = debouncedAction(profile) {
+                            scope.launch {
                                 respond(
                                     profile = profile,
                                     speech = speech,
                                     haptics = haptics,
                                     isCorrect = index == differentIndex,
                                     correctLabel = correctLabel,
-                                    tryAgainLabel = tryAgainLabel,
+                                    repeatLabel = prompt,
                                     onCorrect = { round++ },
                                 )
-                            },
+                            }
+                        }
+                        SelectableOption(
+                            item = item.item,
+                            size = 170f,
+                            onClick = { handleTap() },
                         )
                     }
                 }

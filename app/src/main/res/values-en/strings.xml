@@ -81,7 +81,7 @@
     <string name="letters_instruction">Listen carefully and tap the right letter</string>
 
     <!-- Feedback / reward -->
-    <string name="feedback_correct">Great! That is right.</string>
+    <string name="feedback_correct">Great!</string>
     <string name="feedback_try_again">Try again</string>
 
     <!-- Cause & Effect level -->

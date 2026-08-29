@@ -4,7 +4,12 @@ import android.content.Context
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.coroutines.resume
 
 /**
  * Audio narration/feedback helper.
@@ -18,6 +23,11 @@ import java.util.Locale
  *  - if TTS never becomes ready, each narration plays a tone instead, so there
  *    is always sound.
  *
+ * Queue policy: each new utterance FLUSHES the engine, so stale audio can never
+ * pile up and keep playing after the round/screen has moved on. Callers that
+ * need the reward to finish before the next prompt use [sayAndWait], which
+ * suspends until the utterance completes (via the TTS completion listener).
+ *
  * IMPORTANT: construction must never throw, even on devices with a broken or
  * missing TTS engine or an unavailable audio routing. Both heavy services are
  * created lazily behind [runCatching] so a boot crash is impossible.
@@ -30,6 +40,7 @@ class Speech(context: Context) {
         TextToSpeech(context.applicationContext) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 ready = true
+                registerCompletionListener()
                 pendingLocale?.let { applyLanguage(it) }
                 pending.forEach { speak(it) }
                 pending.clear()
@@ -55,6 +66,10 @@ class Speech(context: Context) {
     private val pending = mutableListOf<String>()
     private var pendingLocale: Locale? = null
 
+    // Callbacks keyed by utterance id, invoked when that utterance finishes.
+    // Used to resume [sayAndWait] coroutines. Thread-safe for TTS callbacks.
+    private val utteranceCallbacks = ConcurrentHashMap<String, () -> Unit>()
+
     private val defaultLocale: Locale = Locale.getDefault()
 
     /** True once the TTS engine is initialised and speaking. */
@@ -66,7 +81,8 @@ class Speech(context: Context) {
         if (ready) applyLanguage(locale)
     }
 
-    /** Speak a phrase; if TTS cannot speak, play a tone so there is sound. */
+    /** Speak a phrase (flushing any current/queued audio); if TTS cannot speak,
+     *  plays a tone so there is sound. */
     fun say(text: String) {
         if (engine != null && ready && !ttsError) {
             if (text.isNotBlank()) speak(text)
@@ -77,9 +93,64 @@ class Speech(context: Context) {
         }
     }
 
+    /**
+     * Speak [text], flushing current audio, and suspend until that utterance's
+     * onDone fires (or a safety timeout / engine unavailable cancels the wait).
+     * Returns true if the utterance actually completed via TTS.
+     */
+    suspend fun sayAndWait(text: String): Boolean {
+        val t = engine ?: run { if (text.isNotBlank()) playTone(); return false }
+        if (!ready || ttsError) {
+            // TTS not usable: fall back to a tone and do not block the caller.
+            if (text.isNotBlank()) playTone()
+            return false
+        }
+        return withTimeoutOrNull(8000L) {
+            suspendCancellableCoroutine { cont ->
+                val id = "sternchen_${System.nanoTime()}"
+                utteranceCallbacks[id] = { cont.resume(true) }
+                cont.invokeOnCancellation {
+                    utteranceCallbacks.remove(id)
+                }
+                runCatching {
+                    t.speak(text, TextToSpeech.QUEUE_FLUSH, null, id)
+                }.onFailure {
+                    utteranceCallbacks.remove(id)
+                    cont.resume(false)
+                }
+            }
+        } ?: false
+    }
+
     /** Always play a short audible blip (reliable reward/feedback cue). */
     fun tone() {
         playTone()
+    }
+
+    private fun registerCompletionListener() {
+        val t = engine ?: return
+        try {
+            t.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                override fun onStart(utteranceId: String?) {}
+                override fun onDone(utteranceId: String?) {
+                    utteranceId?.let { id ->
+                        utteranceCallbacks.remove(id)?.invoke()
+                    }
+                }
+                @Deprecated("Deprecated by TTS for API < 21; still delivered on some engines.")
+                override fun onError(utteranceId: String?) {
+                    utteranceId?.let { id ->
+                        utteranceCallbacks.remove(id)?.invoke()
+                    }
+                }
+                override fun onError(utteranceId: String?, errorCode: Int) {
+                    utteranceId?.let { id ->
+                        utteranceCallbacks.remove(id)?.invoke()
+                    }
+                }
+            })
+        } catch (_: Exception) {
+        }
     }
 
     private fun applyLanguage(locale: Locale) {
@@ -94,10 +165,12 @@ class Speech(context: Context) {
         }
     }
 
+    /** Speak with a flush: replace any current/queued audio, tagged with an id. */
     private fun speak(text: String) {
         val t = engine ?: return
         try {
-            t.speak(text, TextToSpeech.QUEUE_ADD, null, "sternchen_${System.nanoTime()}")
+            val id = "sternchen_${System.nanoTime()}"
+            t.speak(text, TextToSpeech.QUEUE_FLUSH, null, id)
         } catch (_: Exception) {
             playTone()
         }
@@ -111,16 +184,18 @@ class Speech(context: Context) {
         }
     }
 
-    /** Stop any ongoing speech. */
+    /** Stop any ongoing speech and drop pending completion callbacks. */
     fun stop() {
+        utteranceCallbacks.forEach { (id, cb) -> utteranceCallbacks.remove(id) }
         if (ready) {
             try { engine?.stop() } catch (_: Exception) { }
         }
     }
 
     fun shutdown() {
+        stop()
         if (ready) {
-            try { engine?.stop(); engine?.shutdown() } catch (_: Exception) { }
+            try { engine?.shutdown() } catch (_: Exception) { }
         }
         try { toneGenerator?.release() } catch (_: Exception) { }
     }

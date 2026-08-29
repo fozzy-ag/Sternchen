@@ -14,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,9 +30,11 @@ import com.sternchen.learn.levels.shared.LevelShell
 import com.sternchen.learn.levels.shared.ObjectItem
 import com.sternchen.learn.levels.shared.SelectableOption
 import com.sternchen.learn.levels.shared.ShapeKind
+import com.sternchen.learn.levels.shared.debouncedAction
 import com.sternchen.learn.levels.shared.optionSizeFor
 import com.sternchen.learn.levels.shared.respond
 import kotlin.random.Random
+import kotlinx.coroutines.launch
 
 /** Distinct, high-saturation palette for option colour (CVI-friendly contrast). */
 private val PALETTE = listOf(
@@ -66,11 +69,11 @@ fun MatchingScreen(
     val options by remember(round) { mutableStateOf(makeOptions(target, shapes, round)) }
 
     val correctLabel = stringResource(R.string.feedback_correct)
-    val tryAgainLabel = stringResource(R.string.feedback_try_again)
     val prompt = stringResource(R.string.matching_prompt)
     val instruction = stringResource(R.string.matching_instruction)
     val context = LocalContext.current
     val haptics = remember { Haptics(context) }
+    val scope = rememberCoroutineScope()
 
     // Speak the target's name as the prompt for this round (audio narration).
     val targetWord = stringResource(target.shape.nameRes)
@@ -114,20 +117,23 @@ fun MatchingScreen(
             ) {
                 options.forEach { option ->
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        SelectableOption(
-                            item = option,
-                            size = optSize,
-                            onClick = {
+                        val handleTap = debouncedAction(profile) {
+                            scope.launch {
                                 respond(
                                     profile = profile,
                                     speech = speech,
                                     haptics = haptics,
                                     isCorrect = option == target,
                                     correctLabel = correctLabel,
-                                    tryAgainLabel = tryAgainLabel,
+                                    repeatLabel = targetWord,
                                     onCorrect = { round++ },
                                 )
-                            },
+                            }
+                        }
+                        SelectableOption(
+                            item = option,
+                            size = optSize,
+                            onClick = { handleTap() },
                         )
                     }
                 }

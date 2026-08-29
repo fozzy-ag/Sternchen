@@ -81,7 +81,7 @@
     <string name="letters_instruction">Höre gut zu und tippe den richtigen Buchstaben an</string>
 
     <!-- Feedback / reward -->
-    <string name="feedback_correct">Super! Genau richtig.</string>
+    <string name="feedback_correct">Super!</string>
     <string name="feedback_try_again">Noch einmal versuchen</string>
 
     <!-- Cause & Effect level -->

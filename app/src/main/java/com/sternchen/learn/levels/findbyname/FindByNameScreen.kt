@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,8 +29,10 @@ import com.sternchen.learn.levels.shared.LevelShell
 import com.sternchen.learn.levels.shared.ObjectItem
 import com.sternchen.learn.levels.shared.SelectableOption
 import com.sternchen.learn.levels.shared.ShapeKind
+import com.sternchen.learn.levels.shared.debouncedAction
 import com.sternchen.learn.levels.shared.respond
 import kotlin.random.Random
+import kotlinx.coroutines.launch
 
 /**
  * Find by Name (receptive vocabulary) level.
@@ -58,11 +61,11 @@ fun FindByNameScreen(
     }
 
     val correctLabel = stringResource(R.string.feedback_correct)
-    val tryAgainLabel = stringResource(R.string.feedback_try_again)
     val prompt = stringResource(R.string.findbyname_prompt)
     val targetWord = stringResource(targetShape.nameRes)
     val context = LocalContext.current
     val haptics = remember { Haptics(context) }
+    val scope = rememberCoroutineScope()
 
     // Announce: "Tap the picture: <name>" e.g. "Tap the picture: ball".
     LaunchedEffect(round) {
@@ -90,20 +93,23 @@ fun FindByNameScreen(
             ) {
                 options.forEachIndexed { index, option ->
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        SelectableOption(
-                            item = option,
-                            size = 180f,
-                            onClick = {
+                        val handleTap = debouncedAction(profile) {
+                            scope.launch {
                                 respond(
                                     profile = profile,
                                     speech = speech,
                                     haptics = haptics,
                                     isCorrect = index == targetIndex,
                                     correctLabel = correctLabel,
-                                    tryAgainLabel = tryAgainLabel,
+                                    repeatLabel = targetWord,
                                     onCorrect = { round++ },
                                 )
-                            },
+                            }
+                        }
+                        SelectableOption(
+                            item = option,
+                            size = 180f,
+                            onClick = { handleTap() },
                         )
                     }
                 }

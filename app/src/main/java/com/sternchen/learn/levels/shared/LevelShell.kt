@@ -107,27 +107,30 @@ fun debouncedAction(
 /**
  * Unified correct/wrong feedback for choice-based levels.
  *
- * Correct responses receive the audio reward (visual + audio only; no haptic
- * reinforcement, per research). Wrong responses hear the "try again" cue and,
- * if the caregiver has haptic feedback enabled, get a gentle vibration to help
- * catch an error that might be missed on the visual/audio channel.
+ * Correct responses receive the short audio reward (visual + audio only; no
+ * haptic reinforcement, per research). The reward is spoken first and the
+ * caller's [onCorrect] only runs AFTER the reward finishes (onDone sequencing),
+ * so the next round's prompt never stacks on top of stale audio. Wrong responses
+ * repeat the short target word ([repeatLabel]) and, if the caregiver has haptic
+ * feedback enabled, get a gentle vibration to help catch an error that might be
+ * missed on the visual/audio channel.
  *
  * [onCorrect] is invoked when the answer is correct so the level can advance.
  */
-fun respond(
+suspend fun respond(
     profile: LearnerProfile,
     speech: Speech,
     haptics: Haptics,
     isCorrect: Boolean,
     correctLabel: String,
-    tryAgainLabel: String,
+    repeatLabel: String,
     onCorrect: () -> Unit,
 ) {
     if (isCorrect) {
-        if (profile.audioNarration) speech.say(correctLabel)
+        if (profile.audioNarration) speech.sayAndWait(correctLabel)
         onCorrect()
     } else {
-        if (profile.audioNarration) speech.say(tryAgainLabel)
+        if (profile.audioNarration) speech.say(repeatLabel)
         if (profile.hapticFeedback) haptics.vibrateOnWrong()
     }
 }

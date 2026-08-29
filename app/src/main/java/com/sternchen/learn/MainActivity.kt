@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -72,6 +73,12 @@ class MainActivity : AppCompatActivity() {
 private fun AppRoot(vm: AppViewModel, speech: Speech) {
     val profile by vm.profile.collectAsState()
     val screen by vm.screen.collectAsState()
+
+    // Flush any in-flight/queued speech the moment the destination changes, so a
+    // level's audio never carries over into the next screen (or back home).
+    LaunchedEffect(screen) {
+        speech.stop()
+    }
 
     // Keep the UI and narration in the chosen language (German by default).
     SideEffect {

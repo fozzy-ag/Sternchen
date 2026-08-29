@@ -11,7 +11,7 @@
 
 | Field       | Value   |
 |-------------|---------|
-| Version     | `0.2.0` |
+| Version     | `0.2.1` |
 | VersionCode | `1`     |
 | Scheme      | Semantic Versioning (MAJOR.MINOR.PATCH) |
 
@@ -19,6 +19,18 @@ Version fields live in `app/build.gradle.kts` (`defaultConfig.versionCode` /
 `versionName`). Every user-facing change gets a changelog entry below.
 
 ### Changelog
+
+#### 0.2.1 (2026-08-29) — TTS queue fix + shorter/clearer feedback
+- **Fixed stale/queued speech**: `Speech` now flushes the engine before each new
+  utterance and speech is stopped on every screen change, so audio no longer piles up,
+  keeps playing after a round has moved on, or carries into the next level.
+- **Correct reward sequencing**: the one-word reward ("Super!"/"Great!") is spoken
+  first and the next round only advances once it finishes, via a TTS completion hook.
+- **Ataxia debounce** now also guards the choice-level tap handlers.
+- **Shorter, clearer feedback**: correct answers are now a single word
+  ("Super!"/"Great!"); wrong answers repeat the shortened target word (the letter,
+  number, item or colour) instead of "try again"; the Counting level now voices the
+  number sequence only (no "How many?").
 
 #### 0.2.0 (2026-08-29) — CVI letter bubbling + wrong-only haptics
 - **CVI letter bubbling**: every letter/number tile (`SelectableTextOption`) now has a
