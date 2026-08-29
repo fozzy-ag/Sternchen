@@ -11,7 +11,7 @@
 
 | Field       | Value   |
 |-------------|---------|
-| Version     | `0.3.0` |
+| Version     | `0.3.1` |
 | VersionCode | `1`     |
 | Scheme      | Semantic Versioning (MAJOR.MINOR.PATCH) |
 
@@ -19,6 +19,13 @@ Version fields live in `app/build.gradle.kts` (`defaultConfig.versionCode` /
 `versionName`). Every user-facing change gets a changelog entry below.
 
 ### Changelog
+
+#### 0.3.1 (2026-08-29) — Naming: advance only after the spoken name completes
+- In the Object Naming level, tapping to hear the name now keeps the current
+  object on screen and only advances to the next object once the name has been
+  fully spoken (same sequencing as the correct-answer reward). Previously the
+  display swapped immediately and the next item's prompt could cut off the tail
+  of the previous name.
 
 #### 0.3.0 (2026-08-29) — full setup for the learner profile
 - **Learner name**: caregivers can enter the child's name (used as a friendly label).

@@ -8,6 +8,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +25,7 @@ import com.sternchen.learn.levels.shared.ShapeKind
 import com.sternchen.learn.levels.shared.ShapeView
 import com.sternchen.learn.levels.shared.debouncedAction
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Object Naming level.
@@ -54,10 +56,15 @@ fun ObjectNamingScreen(
     val item = remember(index, profile.preferredColor) {
         ObjectItem(shape = objectSequence[index], color = profile.preferredColor)
     }
+    val scope = rememberCoroutineScope()
     val handleTap = debouncedAction(profile) {
-        if (profile.audioNarration) speech.say(objectName)
-        // Advance to the next object after the reward is spoken.
-        index = (index + 1) % objectSequence.size
+        scope.launch {
+            // Speak the current name fully, then advance — same sequencing as the
+            // correct-answer reward, so the old item stays visible while its audio
+            // finishes and never overlaps the next item's prompt.
+            if (profile.audioNarration) speech.sayAndWait(objectName)
+            index = (index + 1) % objectSequence.size
+        }
     }
 
     // Speak the object name when it first appears (the prompt).
