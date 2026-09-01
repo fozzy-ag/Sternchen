@@ -1,13 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!-- Soft shadow copy offset behind the star for volume. -->
     <path
-        android:fillColor="#2196F3"
-        android:pathData="M0,0h108v108h-108z" />
+        android:fillColor="#D99213"
+        android:pathData="M55.5,27.0 L63.14,46.48 L84.03,47.73 L67.86,61.02 L73.13,81.27 L55.5,70.0 L37.87,81.27 L43.14,61.02 L26.97,47.73 L47.86,46.48 Z" />
+
+    <!-- Main star: light-to-deep gold gradient gives the shaded, dimensional look. -->
+    <path android:pathData="M54.0,24.0 L61.64,43.48 L82.53,44.73 L66.36,58.02 L71.63,78.27 L54.0,67.0 L36.37,78.27 L41.64,58.02 L25.47,44.73 L46.36,43.48 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="36"
+                android:startY="36"
+                android:endX="72"
+                android:endY="72"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FDE28B" />
+                <item android:offset="0.55" android:color="#F9B81F" />
+                <item android:offset="1.0" android:color="#F7A80E" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Gloss sheen clipped to the star silhouette (glassy highlight). -->
+    <group>
+        <clip-path android:pathData="M54.0,24.0 L61.64,43.48 L82.53,44.73 L66.36,58.02 L71.63,78.27 L54.0,67.0 L36.37,78.27 L41.64,58.02 L25.47,44.73 L46.36,43.48 Z" />
+        <path
+            android:fillColor="#80FFFFFF"
+            android:pathData="M25,36 A 15 38 0 1 0 55,36 A 15 38 0 1 0 25,36 Z" />
+    </group>
+
+    <!-- Twinkle sparkles. -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M54,24c-16,0 -26,12 -26,30c0,20 26,30 26,30s26,-10 26,-30c0,-18 -10,-30 -26,-30zM54,60c-5.5,0 -10,-4.5 -10,-10s4.5,-10 10,-10s10,4.5 10,10s-4.5,10 -10,10z" />
+        android:fillColor="#E6FFFFFF"
+        android:pathData="M30.0,15.0 L31.78,22.22 L39.0,24.0 L31.78,25.78 L30.0,33.0 L28.22,25.78 L21.0,24.0 L28.22,22.22 Z" />
+    <path
+        android:fillColor="#D9FFFFFF"
+        android:pathData="M83.0,65.0 L84.39,70.61 L90.0,72.0 L84.39,73.39 L83.0,79.0 L81.61,73.39 L76.0,72.0 L81.61,70.61 Z" />
+    <path
+        android:fillColor="#E6FFFFFF"
+        android:pathData="M82.0,25.0 L82.99,29.01 L87.0,30.0 L82.99,30.99 L82.0,35.0 L81.01,30.99 L77.0,30.0 L81.01,29.01 Z" />
+    <path
+        android:fillColor="#CDFFFFFF"
+        android:pathData="M21.0,59.0 L21.99,63.01 L26.0,64.0 L21.99,64.99 L21.0,69.0 L20.01,64.99 L16.0,64.0 L20.01,63.01 Z" />
+    <path
+        android:fillColor="#CDFFFFFF"
+        android:pathData="M58.0,82.0 L58.79,85.21 L62.0,86.0 L58.79,86.79 L58.0,90.0 L57.21,86.79 L54.0,86.0 L57.21,85.21 Z" />
+    <path
+        android:fillColor="#CDFFFFFF"
+        android:pathData="M76.0,46.5 L76.69,49.31 L79.5,50.0 L76.69,50.69 L76.0,53.5 L75.31,50.69 L72.5,50.0 L75.31,49.31 Z" />
 </vector>

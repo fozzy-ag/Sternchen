@@ -11,7 +11,7 @@
 
 | Field       | Value   |
 |-------------|---------|
-| Version     | `0.3.1` |
+| Version     | `0.3.2` |
 | VersionCode | `1`     |
 | Scheme      | Semantic Versioning (MAJOR.MINOR.PATCH) |
 
@@ -19,6 +19,11 @@ Version fields live in `app/build.gradle.kts` (`defaultConfig.versionCode` /
 `versionName`). Every user-facing change gets a changelog entry below.
 
 ### Changelog
+
+#### 0.3.2 (2026-08-29) — app icon
+- **Launcher icon**: a glossy 3D yellow star with twinkle sparkles on a soft
+  light-blue background (adaptive icon incl. Android 13 themed-icon silhouette).
+  Replaces the default Android icon the app previously shipped with.
 
 #### 0.3.1 (2026-08-29) — Naming: advance only after the spoken name completes
 - In the Object Naming level, tapping to hear the name now keeps the current
