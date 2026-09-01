@@ -224,6 +224,22 @@ fun SetupScreen(
             onValue = { v -> onEdit(profile.copy(stimulusRepetitions = v.roundToInt())) },
         )
 
+        // Counting level max
+        SectionLabel(stringResource(R.string.setup_counting_max))
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            listOf(3, 5, 10).forEach { max ->
+                val selected = profile.countingMax == max
+                val label = "$max"
+                if (selected) {
+                    Button(onClick = { /* already selected */ }) { Text(label) }
+                } else {
+                    OutlinedButton(
+                        onClick = { onEdit(profile.copy(countingMax = max)) }
+                    ) { Text(label) }
+                }
+            }
+        }
+
         // Audio narration
         switchRow(
             label = stringResource(R.string.setup_audio_narration),

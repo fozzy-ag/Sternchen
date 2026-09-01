@@ -11,7 +11,7 @@
 
 | Field       | Value   |
 |-------------|---------|
-| Version     | `0.3.2` |
+| Version     | `0.4.0` |
 | VersionCode | `1`     |
 | Scheme      | Semantic Versioning (MAJOR.MINOR.PATCH) |
 
@@ -19,6 +19,12 @@ Version fields live in `app/build.gradle.kts` (`defaultConfig.versionCode` /
 `versionName`). Every user-facing change gets a changelog entry below.
 
 ### Changelog
+
+#### 0.4.0 (2026-08-29) — count up to 5 or 10
+- **Counting level range**: the count now spans 1–5 (default) or up to 10, chosen
+  by a new "Count up to" control (3 / 5 / 10) on the Setup screen.
+- Counting objects and numeral options resize automatically and split into two
+  rows when more than 5 are shown, keeping targets large.
 
 #### 0.3.2 (2026-08-29) — app icon
 - **Launcher icon**: a glossy 3D yellow star with twinkle sparkles on a soft
@@ -201,6 +207,7 @@ profile changes persist and apply immediately (theme, language, input, audio).
 | Object size | 0.7×–1.4× slider | Global scale for objects/options in all levels. |
 | Switch scanning speed | 0.2–5 s slider | Dwell time for switch scanning (persisted; platform scanning drives today). |
 | Repeats of the task | 1–5 slider | Promised repetition count of each task prompt (persisted). |
+| Count up to | 3 / 5 / 10 | Counting-level difficulty (number range). |
 | Language | Deutsch (default) / Englisch | In-app UI + TTS language, independent of device locale. |
 | Reduce motion | on (default) / off | Turns the feedback pulse into an instant still change; seizure safety. |
 | Input method | Touch (default) / Switch/Scan | Debounce is auto-disabled in switch-scan mode. |
@@ -360,7 +367,7 @@ WCAG 2.2/2.3 (no flashing, ≥3 flashes threshold), haptic + audio + visual feed
   rounds don't yet repeat the prompt N times.
 - **Haptics are wrong-only** (by design: correct responses use visual + audio reward only;
   see [Roadmap](#roadmap--future-additions) and the feedback section above).
-- **Fixed letter/number sets**: letters A–F, counts 1–3 (deliberately small).
+- **Fixed letter sets**: letters A–F (deliberately small). Counting is now caregiver-ranged (3/5/10).
 - **Single profile**: one learner per device.
 - **No automated tests / CI** yet.
 - TTS quality depends on the device's installed engine/voice (the app degrades to tones).

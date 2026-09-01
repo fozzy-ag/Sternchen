@@ -12,6 +12,7 @@
     <string name="setup_scan_dwell">Switch scanning speed</string>
     <string name="setup_object_scale">Object size</string>
     <string name="setup_stimulus_repetitions">Repeats of the task</string>
+    <string name="setup_counting_max">Count up to</string>
     <string name="setup_language">Language</string>
     <string name="setup_language_german">German</string>
     <string name="setup_language_english">English</string>

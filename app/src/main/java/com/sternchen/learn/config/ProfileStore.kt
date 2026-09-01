@@ -33,6 +33,7 @@ class ProfileStore(context: Context) {
             scanDwellMillis = prefs.getLong(KEY_SCAN_DWELL, 2500L),
             latencyMillis = prefs.getLong(KEY_LATENCY, 3000L),
             stimulusRepetitions = prefs.getInt(KEY_REPS, 3),
+            countingMax = prefs.getInt(KEY_COUNTING_MAX, 5),
             explicitInstruction = prefs.getBoolean(KEY_EXPLICIT, true),
             audioNarration = prefs.getBoolean(KEY_AUDIO, true),
             audioOnlyMode = prefs.getBoolean(KEY_AUDIO_ONLY, false),
@@ -54,6 +55,7 @@ class ProfileStore(context: Context) {
             .putLong(KEY_SCAN_DWELL, profile.scanDwellMillis)
             .putLong(KEY_LATENCY, profile.latencyMillis)
             .putInt(KEY_REPS, profile.stimulusRepetitions)
+            .putInt(KEY_COUNTING_MAX, profile.countingMax)
             .putBoolean(KEY_EXPLICIT, profile.explicitInstruction)
             .putBoolean(KEY_AUDIO, profile.audioNarration)
             .putBoolean(KEY_AUDIO_ONLY, profile.audioOnlyMode)
@@ -74,6 +76,7 @@ class ProfileStore(context: Context) {
         const val KEY_SCAN_DWELL = "scan_dwell"
         const val KEY_LATENCY = "latency"
         const val KEY_REPS = "reps"
+        const val KEY_COUNTING_MAX = "counting_max"
         const val KEY_EXPLICIT = "explicit"
         const val KEY_AUDIO = "audio"
         const val KEY_AUDIO_ONLY = "audio_only"

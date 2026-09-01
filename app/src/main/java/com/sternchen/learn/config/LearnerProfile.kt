@@ -47,6 +47,8 @@ data class LearnerProfile(
     val latencyMillis: Long = 3000L,
     /** Repeat a target prompt this many times before moving on (implicit/procedural support). */
     val stimulusRepetitions: Int = 3,
+    /** Maximum number shown in the counting level (3, 5 or 10). */
+    val countingMax: Int = 5,
     /** Explicit (vs discovery) instruction — always on for this population. */
     val explicitInstruction: Boolean = true,
 
