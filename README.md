@@ -11,7 +11,7 @@
 
 | Field       | Value   |
 |-------------|---------|
-| Version     | `0.4.0` |
+| Version     | `0.4.1` |
 | VersionCode | `1`     |
 | Scheme      | Semantic Versioning (MAJOR.MINOR.PATCH) |
 
@@ -19,6 +19,15 @@ Version fields live in `app/build.gradle.kts` (`defaultConfig.versionCode` /
 `versionName`). Every user-facing change gets a changelog entry below.
 
 ### Changelog
+
+#### 0.4.1 (2026-10-02) — Android 7 support (side branch `android7-support`)
+- **`minSdk` lowered 26 → 24**, so the app installs and runs on Android 7.0/7.1
+  as well as 8.0+.
+- **Legacy launcher icons added**: PNG mipmaps (mdpi→xxxhdpi, plus round variants)
+  rendered from the same star artwork, because adaptive icons only exist from
+  API 26. API 26+ keeps the vector adaptive icon (and Android 13 themed icon).
+- No behavioural changes; haptics already fall back to the legacy vibration API
+  below API 26.
 
 #### 0.4.0 (2026-08-29) — count up to 5 or 10
 - **Counting level range**: the count now spans 1–5 (default) or up to 10, chosen
@@ -134,7 +143,7 @@ services. State is persisted on-device (SharedPreferences).
 ## Technology stack
 
 - **Kotlin 2.4.10** + **Jetpack Compose** (Material 3), single-module Android app.
-- **AGP 8.7.2**, `compileSdk` 35, `minSdk` 26, `targetSdk` 35, JVM target 17.
+- **AGP 8.7.2**, `compileSdk` 35, `minSdk` 24 (Android 7.0), `targetSdk` 35, JVM target 17.
 - **StateFlow** (`AppViewModel`) as single source of truth; no navigation library — a
   `Screen` enum drives the root `when`.
 - **SharedPreferences** via a thin `ProfileStore` (deliberately replaceable by Room later).
