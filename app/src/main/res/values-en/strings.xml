@@ -23,7 +23,7 @@
     <string name="setup_debounce">Ignore accidental double-press (ataxia)</string>
     <string name="setup_latency">Extra time to respond (slow processing)</string>
     <string name="setup_audio_narration">Audio narration</string>
-    <string name="setup_audio_only">Audio-only mode: hides the back button, and Cause &amp; Effect and Object Naming become audio-only. The six choice levels and the home hub remain visual.</string>
+    <string name="setup_audio_only">Audio-only mode: hides the back button. In Cause &amp; Effect and Object Naming the screen starts blank and the picture appears only after the name has been spoken.</string>
     <string name="setup_haptic_feedback">Vibrate on wrong answer</string>
     <string name="setup_voice">Voice / narration</string>
     <string name="setup_voice_install">Install a voice (narration)</string>

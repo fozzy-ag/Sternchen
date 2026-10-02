@@ -1,6 +1,7 @@
 package com.sternchen.learn.levels.causeeffect
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -55,7 +57,9 @@ import kotlinx.coroutines.delay
  *  - Debounce: rapid/accidental presses (ataxia/tremor) are ignored.
  *  - Switch Access / TalkBack: the object carries a content description and a
  *    click action, so the platform switch scanning can traverse and select it.
- *  - Audio: every effect speaks the object's name; audio-only mode hides visuals.
+ *  - Audio: every effect speaks the object's name; audio-only mode holds the
+ *    picture back until that first sound has actually played, so the sound leads
+ *    and the visual only ever supports it.
  */
 @Composable
 fun CauseEffectScreen(
@@ -70,6 +74,12 @@ fun CauseEffectScreen(
 
     var trigger by remember { mutableIntStateOf(0) }
     var showPulse by remember { mutableStateOf(false) }
+
+    // Audio-only mode: the first accepted tap plays the sound, and only then is
+    // the object revealed. Until that point the level is genuinely non-visual,
+    // which is the whole point of the mode; afterwards the picture is present to
+    // name, tap again and repeat.
+    var soundPlayed by remember { mutableStateOf(false) }
 
     val objectName = stringResource(R.string.cause_object)
     val tapForSound = stringResource(R.string.cause_tap_for_sound)
@@ -101,8 +111,22 @@ fun CauseEffectScreen(
     fun fireEffect() {
         if (debouncer.shouldAccept()) {
             trigger++
+            soundPlayed = true
         }
     }
+
+    // In audio-only mode the object fades in once the sound has played, so the
+    // reveal is a reward for the sound rather than a picture that was already
+    // there. Normal mode shows the object from the start, unchanged, and
+    // reduced motion makes the reveal instant.
+    val showObject = !profile.audioOnlyMode || soundPlayed
+    val revealAlpha by animateFloatAsState(
+        targetValue = if (showObject) 1f else 0f,
+        animationSpec = tween(
+            durationMillis = if (profile.reducedMotion || !profile.audioOnlyMode) 0 else 450,
+        ),
+        label = "audioOnlyReveal",
+    )
 
     Box(
         modifier = Modifier
@@ -123,7 +147,7 @@ fun CauseEffectScreen(
                     .clickable(onClick = onBack),
             )
         } else {
-            // The arrow is hidden here, so the full-screen sound target below
+            // The arrow is hidden here, so the screen-filling sound target below
             // would leave no way back to the hub. zIndex keeps this above it.
             Box(
                 modifier = Modifier
@@ -138,8 +162,8 @@ fun CauseEffectScreen(
             )
         }
 
-        if (profile.audioOnlyMode) {
-            // Audio-only fallback for visual fatigue: a single large tap target.
+        if (!showObject) {
+            // Audio-only, before the first sound: nothing but a large ear target.
             Text(
                 text = tapForSound,
                 color = Color.White,
@@ -148,13 +172,16 @@ fun CauseEffectScreen(
                     .clickable(onClickLabel = playSoundLabel, onClick = ::fireEffect),
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             )
-        } else {
+        }
+
+        if (showObject) {
             val baseSize = (170f * profile.objectScale).dp
             val effectiveSize = if (showPulse) baseSize * 1.25f else baseSize
 
             Box(
                 modifier = Modifier
                     .size(effectiveSize)
+                    .alpha(revealAlpha)
                     .background(currentColor, CircleShape)
                     .testTag("causeEffectObject")
                     .semantics { contentDescription = objectName }
