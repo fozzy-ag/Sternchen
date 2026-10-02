@@ -10,10 +10,10 @@ android {
 
     defaultConfig {
         applicationId = "com.sternchen.learn"
-        minSdk = 26
+        minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "0.5.0"
+        versionName = "0.5.0-android7"
     }
 
     buildTypes {
