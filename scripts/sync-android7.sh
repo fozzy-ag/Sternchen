@@ -106,7 +106,7 @@ if ! git merge --no-edit "$MAIN_REF"; then
         git checkout --theirs README.md
         git add README.md
     fi
-    GIT_EDITOR=true git merge --continue --no-edit >/dev/null
+    GIT_EDITOR=true git merge --continue >/dev/null
     echo "   (resolved build.gradle.kts / README.md automatically)"
 fi
 TIP_AFTER_MERGE="$(git rev-parse HEAD)"
