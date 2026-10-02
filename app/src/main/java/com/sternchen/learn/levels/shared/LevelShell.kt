@@ -19,7 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -49,6 +51,7 @@ fun LevelShell(
     instruction: String = "",
     content: @Composable () -> Unit,
 ) {
+    val backLabel = stringResource(R.string.back)
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -57,14 +60,32 @@ fun LevelShell(
         if (!profile.audioOnlyMode) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = stringResource(R.string.back),
+                contentDescription = backLabel,
                 tint = Color.White,
                 modifier = Modifier
                     .zIndex(1f)
                     .align(Alignment.TopStart)
                     .padding(12.dp)
                     .size(28.dp)
-                    .clickable(onClick = onBack),
+                    .clickable(onClickLabel = backLabel, onClick = onBack),
+            )
+        } else {
+            // In audio-only mode the arrow is hidden, so without this the level
+            // would have no in-app way out at all and back would leave the app.
+            // Invisible, but sized and labelled so switch access can still reach
+            // and announce it. zIndex matches the arrow's: some levels compose a
+            // full-screen tap target after the chrome, which would otherwise
+            // swallow taps in this corner.
+            Box(
+                modifier = Modifier
+                    .zIndex(1f)
+                    .align(Alignment.TopStart)
+                    .size(96.dp)
+                    .semantics {
+                        contentDescription = backLabel
+                        role = Role.Button
+                    }
+                    .clickable(onClickLabel = backLabel, onClick = onBack),
             )
         }
 

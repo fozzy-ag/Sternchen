@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -24,6 +25,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.sternchen.learn.R
@@ -56,6 +61,7 @@ fun HomeScreen(
     val debouncer = remember {
         Debouncer(if (profile.inputMode == InputMode.SWITCH_SCAN) 0L else profile.debounceMillis)
     }
+    val backLabel = stringResource(R.string.back)
 
     Column(
         modifier = Modifier
@@ -70,13 +76,27 @@ fun HomeScreen(
             if (!profile.audioOnlyMode) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.back),
+                    contentDescription = backLabel,
                     tint = Color.White,
                     modifier = Modifier
                         .align(Alignment.CenterStart)
                         .padding(4.dp)
                         .zIndex(1f)
                         .clickable(onClick = onBack),
+                )
+            } else {
+                // Audio-only: keep the way back to Setup reachable without the
+                // arrow. Sized generously because it is invisible and unhinted.
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .size(96.dp)
+                        .zIndex(1f)
+                        .semantics {
+                            contentDescription = backLabel
+                            role = Role.Button
+                        }
+                        .clickable(onClickLabel = backLabel, onClick = onBack),
                 )
             }
         }

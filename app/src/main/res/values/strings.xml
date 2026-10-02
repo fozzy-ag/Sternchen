@@ -23,7 +23,7 @@
     <string name="setup_debounce">Versehentliches Doppeldrücken ignorieren (Ataxie)</string>
     <string name="setup_latency">Zusätzliche Zeit zum Antworten (langsames Verarbeiten)</string>
     <string name="setup_audio_narration">Sprachausgabe</string>
-    <string name="setup_audio_only">Nur-Audio-Modus (bei visueller Ermüdung)</string>
+    <string name="setup_audio_only">Nur-Audio-Modus: blendet die Zurück-Taste aus, Cause &amp; Effect und Benennen werden rein auditiv. Die sechs Auswahl-Übungen und die Startseite bleiben visuell.</string>
     <string name="setup_haptic_feedback">Bei falscher Antwort vibrieren</string>
     <string name="setup_voice">Stimme / Vorlesen</string>
     <string name="setup_voice_install">Stimme installieren (Vorlesen)</string>
