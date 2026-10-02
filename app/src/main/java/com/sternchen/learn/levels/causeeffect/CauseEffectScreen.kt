@@ -25,7 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -119,6 +121,20 @@ fun CauseEffectScreen(
                     .size(28.dp)
                     .zIndex(1f)
                     .clickable(onClick = onBack),
+            )
+        } else {
+            // The arrow is hidden here, so the full-screen sound target below
+            // would leave no way back to the hub. zIndex keeps this above it.
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .size(96.dp)
+                    .zIndex(1f)
+                    .semantics {
+                        contentDescription = backLabel
+                        role = Role.Button
+                    }
+                    .clickable(onClickLabel = backLabel, onClick = onBack),
             )
         }
 

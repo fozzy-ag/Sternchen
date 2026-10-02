@@ -1,6 +1,7 @@
 package com.sternchen.learn
 
 import android.os.Bundle
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -13,16 +14,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.core.os.LocaleListCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
+import com.sternchen.learn.R
 import com.sternchen.learn.access.Speech
 import com.sternchen.learn.config.AppLanguage
 import com.sternchen.learn.config.ProfileStore
@@ -73,11 +79,28 @@ class MainActivity : AppCompatActivity() {
 private fun AppRoot(vm: AppViewModel, speech: Speech) {
     val profile by vm.profile.collectAsState()
     val screen by vm.screen.collectAsState()
+    val homeTitle = stringResource(R.string.home_title)
+
+    // Back is part of the navigation stack, not "leave the app": levels fall back
+    // to HOME, HOME falls back to SETUP, and SETUP exits (BackHandler disabled).
+    // Previously nothing intercepted back, so pressing it finished the activity
+    // from any screen — which stranded the child on the launcher in audio-only
+    // mode, where the on-screen arrow is hidden.
+    BackHandler(enabled = screen != Screen.SETUP) {
+        vm.navigate(if (screen == Screen.HOME) Screen.SETUP else Screen.HOME)
+    }
 
     // Flush any in-flight/queued speech the moment the destination changes, so a
     // level's audio never carries over into the next screen (or back home).
+    var previousScreen by remember { mutableStateOf(screen) }
     LaunchedEffect(screen) {
         speech.stop()
+        // Arriving HOME from inside a level in audio-only mode is otherwise
+        // silent, and the arrow that normally confirms the move is hidden there.
+        if (screen == Screen.HOME && previousScreen != Screen.SETUP && profile.audioOnlyMode) {
+            speech.say(homeTitle)
+        }
+        previousScreen = screen
     }
 
     // Keep the UI and narration in the chosen language (German by default).

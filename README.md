@@ -11,7 +11,7 @@
 
 | Field       | Value   |
 |-------------|---------|
-| Version     | `0.4.0-android7` |
+| Version     | `0.5.0` |
 | VersionCode | `1`     |
 | Scheme      | Semantic Versioning (MAJOR.MINOR.PATCH) |
 
@@ -20,14 +20,22 @@ Version fields live in `app/build.gradle.kts` (`defaultConfig.versionCode` /
 
 ### Changelog
 
-#### 0.4.1 (2026-10-02) — Android 7 support (side branch `android7-support`)
-- **`minSdk` lowered 26 → 24**, so the app installs and runs on Android 7.0/7.1
-  as well as 8.0+.
-- **Legacy launcher icons added**: PNG mipmaps (mdpi→xxxhdpi, plus round variants)
-  rendered from the same star artwork, because adaptive icons only exist from
-  API 26. API 26+ keeps the vector adaptive icon (and Android 13 themed icon).
-- No behavioural changes; haptics already fall back to the legacy vibration API
-  below API 26.
+#### 0.5.0 (2026-10-02) — fixes for haptics persistence, back navigation and audio-only exit
+- **Haptic setting now persists**: "Vibrate on wrong answer" was shown in Setup and
+  honoured at runtime, but never written to storage, so it silently reverted to on
+  after every restart. A caregiver who turned it off got buzzes back.
+- **Back is now a navigation stack**: previously nothing intercepted the system back
+  gesture, so it closed the app from any screen. Now levels return to the hub, the
+  hub returns to Setup, and Setup exits.
+- **Audio-only mode is no longer a dead end**: with the back arrow hidden, the child
+  had no in-app way out of a level and back dropped them at the launcher. An invisible
+  96 dp corner zone now replaces the arrow — reachable by touch and by switch access,
+  announced as "Back" — and arriving back at the hub speaks its title.
+- **First automated tests**: `ProfileStoreTest` round-trips every profile field and
+  fails if a new setting is added to the UI without being persisted. `ProfileStore`
+  now takes a `SharedPreferences` so it is testable on the JVM.
+- **Corrected documentation**: audio-only mode was described as hiding all visuals; it
+  only drops the back button and makes Cause & Effect and Object Naming audio-only.
 
 #### 0.4.0 (2026-08-29) — count up to 5 or 10
 - **Counting level range**: the count now spans 1–5 (default) or up to 10, chosen
@@ -136,14 +144,14 @@ services. State is persisted on-device (SharedPreferences).
 | Slow processing support | Configurable response latency (0–8 s) and configurable stimulus repetition. |
 | Ataxia-safe input | Configurable debounce (0–3 s) swallows accidental rapid re-presses; disabled in switch-scan mode (scanning paces input). |
 | Switch access | Every interactive element carries a content description and click action, so platform Switch Control / scanning traverses real options. |
-| Audio-first | TTS narration of prompts, counts and feedback; tone blip guarantees audible output even if no TTS engine/voice is installed; audio-only mode hides visuals. |
+| Audio-first | TTS narration of prompts, counts and feedback; tone blip guarantees audible output even if no TTS engine/voice is installed; audio-only mode drops the back button and makes Cause & Effect and Object Naming audio-only (the six choice levels and the hub stay visual). |
 | German-first, English optional | In-app language toggle; German default regardless of device locale. |
 | Caregiver-controlled | All accommodations are explicit caregiver settings, not automatic. |
 
 ## Technology stack
 
 - **Kotlin 2.4.10** + **Jetpack Compose** (Material 3), single-module Android app.
-- **AGP 8.7.2**, `compileSdk` 35, `minSdk` 24 (Android 7.0), `targetSdk` 35, JVM target 17.
+- **AGP 8.7.2**, `compileSdk` 35, `minSdk` 26, `targetSdk` 35, JVM target 17.
 - **StateFlow** (`AppViewModel`) as single source of truth; no navigation library — a
   `Screen` enum drives the root `when`.
 - **SharedPreferences** via a thin `ProfileStore` (deliberately replaceable by Room later).
@@ -223,7 +231,7 @@ profile changes persist and apply immediately (theme, language, input, audio).
 | Debounce | 0–3 s slider | Ignores accidental rapid double-presses (ataxia/tremor). |
 | Latency | 0–8 s slider | Extra response time (slow processing). |
 | Audio narration | on (default) / off | TTS prompts + spoken feedback. |
-| Audio-only mode | on / off | Hides visuals; whole-screen tap target for sound (visual fatigue fallback). |
+| Audio-only mode | on / off | Hides the back button (an invisible labelled corner zone replaces it for switch access and touch); Cause & Effect and Object Naming drop their visuals and become voice-only. The six choice levels and the home hub remain visual. |
 | Voice / narration (diagnostic) | status + **Test** + **Install** buttons | Shows whether a TTS voice is ready; opens system TTS settings to install a German voice. |
 
 Persisted profile fields that are not yet surfaced in the UI (available for future
@@ -371,14 +379,16 @@ WCAG 2.2/2.3 (no flashing, ≥3 flashes threshold), haptic + audio + visual feed
 - **Fixed difficulty**: every array level always shows 3 options; no entry-level or
   in-game adaptivity yet.
 - **No progress tracking** (no Room yet; `ProfileStore` is the designated replacement point).
-- **`scanDwellMillis` and `stimulusRepetitions` are settable but not yet driving behavior**:
-  both sliders persist the values; scan pacing still comes from platform switch access, and
-  rounds don't yet repeat the prompt N times.
+- **`scanDwellMillis`, `latencyMillis` and `stimulusRepetitions` are settable but not yet
+  driving behavior**: all three sliders persist their values; scan pacing still comes from
+  platform switch access, there is no visual-latency delay, and rounds don't yet repeat
+  the prompt N times.
 - **Haptics are wrong-only** (by design: correct responses use visual + audio reward only;
   see [Roadmap](#roadmap--future-additions) and the feedback section above).
 - **Fixed letter sets**: letters A–F (deliberately small). Counting is now caregiver-ranged (3/5/10).
 - **Single profile**: one learner per device.
-- **No automated tests / CI** yet.
+- **Tests cover persistence only** (JVM unit tests, no CI yet); the levels and the audio
+  and haptics wrappers are untested.
 - TTS quality depends on the device's installed engine/voice (the app degrades to tones).
 
 ## Roadmap / future additions
