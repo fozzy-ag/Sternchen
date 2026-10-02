@@ -11,7 +11,7 @@
 
 | Field       | Value   |
 |-------------|---------|
-| Version     | `0.5.0` |
+| Version     | `0.5.1` |
 | VersionCode | `1`     |
 | Scheme      | Semantic Versioning (MAJOR.MINOR.PATCH) |
 
@@ -19,6 +19,20 @@ Version fields live in `app/build.gradle.kts` (`defaultConfig.versionCode` /
 `versionName`). Every user-facing change gets a changelog entry below.
 
 ### Changelog
+
+#### 0.5.1 (2026-10-02) — audio-only mode reveals the picture after the sound
+- **Audio-only mode no longer leaves the screen blank forever**. On Cause & Effect and
+  Object Naming the object was suppressed for the whole session, so the level could never
+  be named visually and tapping the "tap for sound" prompt produced audio with still
+  nothing on screen. Both now reveal the object once its name has actually finished
+  playing: Cause & Effect on the first effect, Object Naming when the spoken name
+  completes. The reveal is a 450 ms fade, or instant with reduced motion.
+- The object stays revealed for the rest of the round, and tapping it still replays the
+  sound, so nothing is lost once the picture is up.
+- Tapping during the Object Naming reveal also reveals it, in case the child acts before
+  the narration ends.
+- With audio narration switched off there is no sound to wait for, so audio-only mode
+  shows the object immediately rather than leaving the level unusable.
 
 #### 0.5.0 (2026-10-02) — fixes for haptics persistence, back navigation and audio-only exit
 - **Haptic setting now persists**: "Vibrate on wrong answer" was shown in Setup and
@@ -144,7 +158,7 @@ services. State is persisted on-device (SharedPreferences).
 | Slow processing support | Configurable response latency (0–8 s) and configurable stimulus repetition. |
 | Ataxia-safe input | Configurable debounce (0–3 s) swallows accidental rapid re-presses; disabled in switch-scan mode (scanning paces input). |
 | Switch access | Every interactive element carries a content description and click action, so platform Switch Control / scanning traverses real options. |
-| Audio-first | TTS narration of prompts, counts and feedback; tone blip guarantees audible output even if no TTS engine/voice is installed; audio-only mode drops the back button and makes Cause & Effect and Object Naming audio-only (the six choice levels and the hub stay visual). |
+| Audio-first | TTS narration of prompts, counts and feedback; tone blip guarantees audible output even if no TTS engine/voice is installed; audio-only mode drops the back button and holds the picture back on Cause & Effect and Object Naming until the name has been spoken. |
 | German-first, English optional | In-app language toggle; German default regardless of device locale. |
 | Caregiver-controlled | All accommodations are explicit caregiver settings, not automatic. |
 
@@ -231,7 +245,7 @@ profile changes persist and apply immediately (theme, language, input, audio).
 | Debounce | 0–3 s slider | Ignores accidental rapid double-presses (ataxia/tremor). |
 | Latency | 0–8 s slider | Extra response time (slow processing). |
 | Audio narration | on (default) / off | TTS prompts + spoken feedback. |
-| Audio-only mode | on / off | Hides the back button (an invisible labelled corner zone replaces it for switch access and touch); Cause & Effect and Object Naming drop their visuals and become voice-only. The six choice levels and the home hub remain visual. |
+| Audio-only mode | on / off | Hides the back button (an invisible labelled corner zone replaces it for switch access and touch). On Cause & Effect and Object Naming the screen is blank until the name has been spoken, then the picture fades in — sound first, visual as support. Tapping during that window reveals it too. |
 | Voice / narration (diagnostic) | status + **Test** + **Install** buttons | Shows whether a TTS voice is ready; opens system TTS settings to install a German voice. |
 
 Persisted profile fields that are not yet surfaced in the UI (available for future
