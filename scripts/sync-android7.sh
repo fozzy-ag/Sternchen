@@ -18,10 +18,12 @@
 #   MAX_WORKERS=8
 #   GRADLE_MEM_ARGS="-Xmx4g -Dfile.encoding=UTF-8"
 #   APK_OUT_DIR=/some/dir
+#   MAIN_REF=origin/main   # the ref this branch tracks
 #
 set -eu
 
 BRANCH="android7-support"
+MAIN_REF="${MAIN_REF:-origin/main}"   # override to test against a local branch
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO"
 
@@ -46,7 +48,7 @@ fi
 say "Fetching origin"
 git fetch origin --prune
 
-MAIN_VERSION="$(git show origin/main:app/build.gradle.kts |
+MAIN_VERSION="$(git show "$MAIN_REF":app/build.gradle.kts |
     sed -n 's/.*versionName = "\([^"]*\)".*/\1/p')"
 if [ -z "$MAIN_VERSION" ]; then
     echo "!! Could not read versionName from origin/main." >&2
@@ -81,12 +83,12 @@ CURRENT_VERSION="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' app/build.gradl
 CURRENT_NUM="${CURRENT_VERSION%%-*}"
 if ver_gt "$CURRENT_NUM" "$MAIN_VERSION"; then
     VARIANT_VERSION="$CURRENT_VERSION"
-    say "Branch is at $CURRENT_VERSION, ahead of main's $MAIN_VERSION — keeping it"
+    say "Branch is at $CURRENT_VERSION, ahead of 's $MAIN_VERSION — keeping it"
 fi
 
 # ---------------------------------------------------------------- merge main
-say "Merging origin/main ($MAIN_VERSION) into $BRANCH"
-if ! git merge --no-edit origin/main; then
+say "Merging $MAIN_REF ($MAIN_VERSION) into $BRANCH"
+if ! git merge --no-edit "$MAIN_REF"; then
     conflicted="$(git diff --name-only --diff-filter=U)"
     # build.gradle.kts: take main's, then re-apply our Android 7 overrides below.
     # README.md: take main's, so its fresh changelog survives.
@@ -155,7 +157,7 @@ say "APK delivered: $DEST"
 # ---------------------------------------------------------------- commit / push
 if git diff --quiet; then
     if [ "$TIP_BEFORE" = "$TIP_AFTER_MERGE" ]; then
-        say "Already up to date: $BRANCH matches main ($MAIN_VERSION)"
+        say "Already up to date: $BRANCH matches $MAIN_REF ($MAIN_VERSION)"
     else
         say "Merged main into $BRANCH; Android 7 overrides already correct"
     fi
