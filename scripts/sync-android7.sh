@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 #
 # Sync the Android 7 side branch with main, rebuild it, and deliver a fresh APK.
 #
@@ -11,19 +11,22 @@
 # re-applies those overrides, and stamps a variant version (<main>-android7) so the
 # two APKs are easy to tell apart.
 #
+# Written for POSIX sh (no bashisms) so it runs on Termux, Linux and macOS.
+# NOTE: sed -i is GNU-style here (Termux/Linux); on macOS use `brew install gnu-sed`.
+#
 # Env knobs (override for your machine):
 #   MAX_WORKERS=8
 #   GRADLE_MEM_ARGS="-Xmx4g -Dfile.encoding=UTF-8"
 #   APK_OUT_DIR=/some/dir
 #
-set -euo pipefail
+set -eu
 
 BRANCH="android7-support"
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO"
 
 PUSH=0
-[ "${1:-}" = "--push" ] && PUSH=1
+if [ "${1:-}" = "--push" ]; then PUSH=1; fi
 
 MAX_WORKERS="${MAX_WORKERS:-2}"
 GRADLE_MEM_ARGS="${GRADLE_MEM_ARGS:--Xmx1600m -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8}"
@@ -31,6 +34,7 @@ KOTLIN_MEM_ARGS="${KOTLIN_MEM_ARGS:--Xmx900m}"
 APK_OUT_DIR="${APK_OUT_DIR:-$HOME}"
 
 say() { printf '\n==> %s\n' "$1"; }
+has() { printf '%s\n' "$1" | grep -qx "$2"; }
 
 # ---------------------------------------------------------------- preflight
 if [ -n "$(git status --porcelain)" ]; then
@@ -67,10 +71,14 @@ if ! git merge --no-edit origin/main; then
         printf '%s\n' "$unexpected" >&2
         exit 1
     fi
-    printf '%s\n' "$conflicted" | grep -qx 'app/build.gradle.kts' &&
-        { git checkout --theirs app/build.gradle.kts; git add app/build.gradle.kts; }
-    printf '%s\n' "$conflicted" | grep -qx 'README.md' &&
-        { git checkout --theirs README.md; git add README.md; }
+    if has "$conflicted" 'app/build.gradle.kts'; then
+        git checkout --theirs app/build.gradle.kts
+        git add app/build.gradle.kts
+    fi
+    if has "$conflicted" 'README.md'; then
+        git checkout --theirs README.md
+        git add README.md
+    fi
     GIT_EDITOR=true git merge --continue --no-edit >/dev/null
     echo "   (resolved build.gradle.kts / README.md automatically)"
 fi
@@ -81,10 +89,13 @@ say "Applying Android 7 overrides (minSdk 24, version $VARIANT_VERSION)"
 sed -i 's/^\([[:space:]]*\)minSdk = .*/\1minSdk = 24/' app/build.gradle.kts
 sed -i "s/^\([[:space:]]*\)versionName = .*/\1versionName = \"$VARIANT_VERSION\"/" app/build.gradle.kts
 sed -i "s/^\(| Version[[:space:]]*|\)[^|]*\(|\)$/\1 \`$VARIANT_VERSION\` \2/" README.md
-grep -q "versionName = \"$VARIANT_VERSION\"" app/build.gradle.kts ||
-    { echo "!! versionName override failed — check the sed pattern." >&2; exit 1; }
-grep -q "| Version .*| \`$VARIANT_VERSION\` |" README.md ||
+if ! grep -q "versionName = \"$VARIANT_VERSION\"" app/build.gradle.kts; then
+    echo "!! versionName override failed — check the sed pattern." >&2
+    exit 1
+fi
+if ! grep -q "|\`$VARIANT_VERSION\`" README.md; then
     echo "   (warning: README version table not updated — check its formatting)"
+fi
 
 # ---------------------------------------------------------------- build
 say "Building debug APK (this can take several minutes)"
@@ -94,16 +105,22 @@ say "Building debug APK (this can take several minutes)"
     -Dkotlin.daemon.jvmargs="$KOTLIN_MEM_ARGS"
 
 APK="app/build/outputs/apk/debug/app-debug.apk"
-[ -f "$APK" ] || { echo "!! APK not found at $APK" >&2; exit 1; }
+if [ ! -f "$APK" ]; then
+    echo "!! APK not found at $APK" >&2
+    exit 1
+fi
 
 # ---------------------------------------------------------------- verify + deliver
 if command -v aapt2 >/dev/null 2>&1; then
     badging="$(aapt2 dump badging "$APK" 2>/dev/null || true)"
-    echo "$badging" | grep -E "^minSdkVersion|^package:" | sed 's/^/   /'
-    echo "$badging" | grep -q "minSdkVersion:'24'" ||
-        { echo "!! minSdkVersion is not 24 — aborting." >&2; exit 1; }
-    echo "$badging" | grep -q "versionName='$VARIANT_VERSION'" ||
+    printf '%s\n' "$badging" | grep -E '^minSdkVersion|^package:' | sed 's/^/   /'
+    if ! printf '%s\n' "$badging" | grep -q "minSdkVersion:'24'"; then
+        echo "!! minSdkVersion is not 24 — aborting." >&2
+        exit 1
+    fi
+    if ! printf '%s\n' "$badging" | grep -q "versionName='$VARIANT_VERSION'"; then
         echo "   (warning: versionName in APK does not match $VARIANT_VERSION)"
+    fi
 fi
 
 DEST="$APK_OUT_DIR/sternchen-$VARIANT_VERSION.apk"
