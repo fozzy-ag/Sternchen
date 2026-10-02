@@ -40,19 +40,43 @@ freshly built, distinctly versioned Android 7 APK.
 
 ### Machine-specific build settings
 
-The defaults are tuned for a small/low-RAM machine (large Gradle heaps can deadlock
-the dex merge). Override via environment variables on a bigger machine:
+The defaults are the values verified on a 5 GB phone: a single worker and modest
+Gradle heaps. Larger heaps get the daemon OOM-killed during the dex merge, so
+raise them only on a real workstation:
 
 ```bash
-MAX_WORKERS=8 GRADLE_MEM_ARGS="-Xmx4g -Dfile.encoding=UTF-8" scripts/sync-android7.sh --push
+MAX_WORKERS=8 GRADLE_MEM_ARGS="-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" \
+  KOTLIN_MEM_ARGS="-Xmx2g" scripts/sync-android7.sh --push
 ```
 
 | Variable | Default |
 |---|---|
-| `MAX_WORKERS` | `2` |
-| `GRADLE_MEM_ARGS` | `-Xmx1600m -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8` |
-| `KOTLIN_MEM_ARGS` | `-Xmx900m` |
+| `MAX_WORKERS` | `1` |
+| `GRADLE_MEM_ARGS` | `-Xmx1280m -XX:MaxMetaspaceSize=448m -Dfile.encoding=UTF-8` |
+| `KOTLIN_MEM_ARGS` | `-Xmx768m` |
 | `APK_OUT_DIR` | `$HOME` |
+
+### When the build hangs with no output
+
+A killed Gradle daemon can leave the project's local state unusable, and the
+symptom is misleading: the build prints "single-use Daemon process will be
+forked" and then sits there for tens of minutes with **zero** `Task :` lines and
+no error. It is not downloading anything, and `--offline` does not help. Clear
+the per-project state and run again — the first build after this is slow (it
+recompiles the Kotlin DSL scripts from scratch) but reliable:
+
+```bash
+pkill -9 -f '[G]radleDaemon'          # brackets matter: see below
+rm -rf .gradle
+```
+
+Two traps when cleaning up on this machine:
+
+- Use `pkill -f '[G]radleDaemon'`, not `pkill -f "GradleDaemon"`. Without the
+  brackets, `pkill` matches the shell command containing that same pattern and
+  kills your own shell, so the command appears to hang.
+- Do not SIGKILL a daemon mid-task if you can avoid it; that is what triggers
+  the corrupted state above. Prefer waiting, or lower `MAX_WORKERS` first.
 
 ### Fully automatic syncing (optional)
 

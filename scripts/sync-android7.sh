@@ -15,10 +15,16 @@
 # NOTE: sed -i is GNU-style here (Termux/Linux); on macOS use `brew install gnu-sed`.
 #
 # Env knobs (override for your machine):
-#   MAX_WORKERS=8
-#   GRADLE_MEM_ARGS="-Xmx4g -Dfile.encoding=UTF-8"
+#   MAX_WORKERS=1
+#   GRADLE_MEM_ARGS="-Xmx1280m -XX:MaxMetaspaceSize=448m -Dfile.encoding=UTF-8"
+#   KOTLIN_MEM_ARGS="-Xmx768m"
 #   APK_OUT_DIR=/some/dir
 #   MAIN_REF=origin/main   # the ref this branch tracks
+#
+# The defaults below are the values verified on the 5 GB phone this is developed
+# on: one worker and modest heaps. Larger values OOM-kill the Gradle daemon on a
+# low-RAM machine (the dex merge dies first), so raise them only on a real
+# workstation and expect no benefit here.
 #
 set -eu
 
@@ -30,9 +36,9 @@ cd "$REPO"
 PUSH=0
 if [ "${1:-}" = "--push" ]; then PUSH=1; fi
 
-MAX_WORKERS="${MAX_WORKERS:-2}"
-GRADLE_MEM_ARGS="${GRADLE_MEM_ARGS:--Xmx1600m -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8}"
-KOTLIN_MEM_ARGS="${KOTLIN_MEM_ARGS:--Xmx900m}"
+MAX_WORKERS="${MAX_WORKERS:-1}"
+GRADLE_MEM_ARGS="${GRADLE_MEM_ARGS:--Xmx1280m -XX:MaxMetaspaceSize=448m -Dfile.encoding=UTF-8}"
+KOTLIN_MEM_ARGS="${KOTLIN_MEM_ARGS:--Xmx768m}"
 APK_OUT_DIR="${APK_OUT_DIR:-$HOME}"
 
 say() { printf '\n==> %s\n' "$1"; }
