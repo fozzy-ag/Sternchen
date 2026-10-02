@@ -59,6 +59,31 @@ git checkout "$BRANCH" >/dev/null
 git pull --ff-only origin "$BRANCH" >/dev/null
 TIP_BEFORE="$(git rev-parse HEAD)"
 
+# Never let a sync move the branch's version backwards: if the branch is already
+# ahead of main (e.g. main was renamed or reverted), keep the existing version.
+# Compares dotted MAJOR.MINOR.PATCH numerically -- [ -gt ] cannot, since these
+# are not integers.
+is_num() { case "$1" in '' | *[!0-9]*) return 1 ;; *) return 0 ;; esac; }
+ver_gt() {
+    a_major=${1%%.*}; a_rest=${1#*.}; a_minor=${a_rest%%.*}; a_patch=${a_rest#*.}
+    b_major=${2%%.*}; b_rest=${2#*.}; b_minor=${b_rest%%.*}; b_patch=${b_rest#*.}
+    is_num "$a_major" && is_num "$a_minor" && is_num "$a_patch" || return 1
+    is_num "$b_major" && is_num "$b_minor" && is_num "$b_patch" || return 1
+    if [ "$a_major" -gt "$b_major" ]; then return 0; fi
+    if [ "$a_major" -lt "$b_major" ]; then return 1; fi
+    if [ "$a_minor" -gt "$b_minor" ]; then return 0; fi
+    if [ "$a_minor" -lt "$b_minor" ]; then return 1; fi
+    if [ "$a_patch" -gt "$b_patch" ]; then return 0; fi
+    return 1
+}
+
+CURRENT_VERSION="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts)"
+CURRENT_NUM="${CURRENT_VERSION%%-*}"
+if ver_gt "$CURRENT_NUM" "$MAIN_VERSION"; then
+    VARIANT_VERSION="$CURRENT_VERSION"
+    say "Branch is at $CURRENT_VERSION, ahead of main's $MAIN_VERSION — keeping it"
+fi
+
 # ---------------------------------------------------------------- merge main
 say "Merging origin/main ($MAIN_VERSION) into $BRANCH"
 if ! git merge --no-edit origin/main; then
@@ -93,7 +118,7 @@ if ! grep -q "versionName = \"$VARIANT_VERSION\"" app/build.gradle.kts; then
     echo "!! versionName override failed — check the sed pattern." >&2
     exit 1
 fi
-if ! grep -q "|\`$VARIANT_VERSION\`" README.md; then
+if ! grep -q "\`$VARIANT_VERSION\`" README.md; then
     echo "   (warning: README version table not updated — check its formatting)"
 fi
 
